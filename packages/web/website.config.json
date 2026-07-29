@@ -1,8 +1,6 @@
 {
-    "id": "website",
-    "name": "Runable",
-    "description": "A template for building a React application with Vite, Hono, and Cloudflare Workers",
-    "url": "https://example.com",
-    "hostname": "xyz.runable.site",
+    "id": "home",
+    "name": "Home Negócios Imobiliários",
+    "description": "Site vitrine da Home Negócios Imobiliários",
     "port": 8080
 }
