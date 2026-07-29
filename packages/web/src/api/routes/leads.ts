@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { base } from "../__core/app";
-import { db } from "../database";
-import * as schema from "../database/schema";
+import { supabase } from "../database/supabase";
 
 export const leads = {
   create: base
@@ -11,20 +10,23 @@ export const leads = {
         email: z.string().email(),
         phone: z.string().optional(),
         message: z.string().optional(),
-        propertyId: z.number().optional(),
+        propertyId: z.string().optional(), // agora é string (UUID do Supabase)
       }),
     )
     .handler(async ({ input }) => {
-      const [lead] = await db
-        .insert(schema.leads)
-        .values({
+      const { data: lead, error } = await supabase
+        .from("leads")
+        .insert({
           name: input.name,
           email: input.email,
           phone: input.phone ?? "",
           message: input.message ?? "",
-          propertyId: input.propertyId ?? null,
+          property_id: input.propertyId ?? null,
         })
-        .returning();
+        .select()
+        .single();
+
+      if (error) throw new Error(`Erro ao criar lead: ${error.message}`);
       return lead;
     }),
 };

@@ -11,6 +11,40 @@ export interface PropertyFilters {
   search?: string;
 }
 
+export interface SupabaseProperty {
+  id: string;
+  title: string;
+  purpose: string;
+  type: string;
+  price: number;
+  city: string;
+  neighborhood: string;
+  state: string;
+  bedrooms: number;
+  bathrooms: number;
+  parking: number;
+  area: number;
+  description: string;
+  images: string[];
+  features: string[];
+  featured: boolean;
+  reference: string;
+  createdAt: string;
+  _raw?: {
+    status: string;
+    publicado: boolean;
+    endereco: string | null;
+    iptu: number | null;
+    condominio: number | null;
+    taxas: number | null;
+    area_util: number | null;
+    suites: number | null;
+    ano_construcao: number | null;
+    corretora_id: string;
+    updated_at: string;
+  };
+}
+
 export function useProperties(filters?: PropertyFilters) {
   return useQuery(orpc.properties.list.queryOptions({ input: filters ?? {} }));
 }
@@ -19,7 +53,7 @@ export function useFeaturedProperties() {
   return useQuery(orpc.properties.featured.queryOptions());
 }
 
-export function useProperty(id: number) {
+export function useProperty(id: string) {
   return useQuery(orpc.properties.get.queryOptions({ input: { id }, staleTime: 30_000 }));
 }
 
