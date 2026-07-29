@@ -32,19 +32,19 @@ const VALUES = [
 
 const TEAM = [
   {
+    name: "Liliane de Lima Texeira",
+    role: "Corretora — CRECI 9821/MS",
+    img: "/images/team/liliane.png",
+  },
+  {
     name: "Marilza Galante",
     role: "Corretora — CRECI 6618/MS",
-    img: "https://ui-avatars.com/api/?name=Marilza+Galante&background=0b0b0c&color=gold&size=400",
+    img: "/images/team/marilza.png",
   },
   {
     name: "Silvana Garcia",
     role: "Corretora — CRECI 8889/MS",
-    img: "https://ui-avatars.com/api/?name=Silvana+Garcia&background=0b0b0c&color=gold&size=400",
-  },
-  {
-    name: "Liliane de Lima Texeira",
-    role: "Corretora — CRECI 9821/MS",
-    img: "https://cdn-img-src.imobibrasil.app.br/6b52fd7e0a91f198f233178e10091e0ed2628195/modulos/cadastros/202410272331243687.jpg",
+    img: "/images/team/silvana.png",
   },
 ];
 
