@@ -166,7 +166,7 @@ export default function SobrePage() {
                     src={m.img}
                     alt={m.name}
                     className={`w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ${
-                      m.name === "Marilza Galante" ? "object-[center_65%]" : ""
+                      m.name === "Marilza Galante" ? "object-[center_75%]" : ""
                     }`}
                   />
                 </div>
