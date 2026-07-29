@@ -56,8 +56,8 @@ function Hero() {
           variants={fadeUp}
           className="font-display text-5xl md:text-7xl font-semibold text-foreground leading-[1.05] max-w-4xl"
         >
-          Encontramos o endereço à altura da sua{" "}
-          <span className="text-gradient-gold italic">história.</span>
+          A Home Imobiliária está aqui para transformar o seu sonho em endereço.
+          <span className="text-gradient-gold italic"> Realizamos conquistas.</span>
         </motion.h1>
         <motion.p
           initial="hidden"
@@ -66,9 +66,9 @@ function Hero() {
           variants={fadeUp}
           className="mt-6 text-lg text-foreground/70 max-w-xl leading-relaxed"
         >
-          A Home Imobiliária iniciou suas atividades visando construir a sua história no mercado
-          imobiliário de Três Lagoas, de forma sólida, confiável e duradoura. Ética, transparência
-          e atendimento personalizado.
+          Há anos construindo histórias sólidas no mercado imobiliário de Três Lagoas.
+          Ética, transparência e um atendimento que entende o que você procura — porque
+          comprar, vender ou alugar não é só negócio. É a realização de um sonho.
         </motion.p>
 
         <motion.div
@@ -229,9 +229,9 @@ function Differentials() {
 
 function Stats() {
   const stats = [
-    { value: "Há anos", label: "No mercado imobiliário de Três Lagoas" },
-    { value: "100+", label: "Imóveis em carteira" },
-    { value: "Famílias", label: "Atendidas com segurança" },
+    { value: "20+", label: "Imóveis em carteira" },
+    { value: "Diversas famílias", label: "Realizando sonhos com segurança" },
+    { value: "Há anos", label: "No mercado de Três Lagoas" },
     { value: "Ética", label: "E transparência sempre" },
   ];
   return (
@@ -267,7 +267,7 @@ function CTA() {
       <Reveal className="relative mx-auto max-w-3xl px-6 text-center">
         <p className="text-xs uppercase tracking-luxe text-gold mb-5">Vamos conversar</p>
         <h2 className="font-display text-4xl md:text-5xl text-foreground leading-tight mb-6">
-          Pronto para encontrar o seu próximo endereço?
+          Pronto para transformar seu sonho em endereço?
         </h2>
         <p className="text-foreground/70 mb-10 max-w-xl mx-auto">
           Conte para nós o que você procura. Nossa equipe preparará uma seleção personalizada de
