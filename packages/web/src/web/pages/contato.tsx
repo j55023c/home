@@ -55,7 +55,7 @@ export default function ContatoPage() {
             </div>
 
             <a
-              href={whatsappLink("Olá, vim pelo site e gostaria de mais informações.")}
+              href="https://wa.me/qr/6O66P4ZGUYPBI1"
               target="_blank"
               rel="noreferrer"
               className="flex items-center justify-center gap-2 w-full bg-gold text-black py-4 text-sm uppercase tracking-[0.16em] hover:bg-gold-soft transition-colors"

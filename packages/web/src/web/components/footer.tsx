@@ -33,6 +33,14 @@ export function Footer() {
             >
               <Facebook size={16} />
             </a>
+            <a
+              href="https://wa.me/qr/6O66P4ZGUYPBI1"
+              target="_blank"
+              rel="noreferrer"
+              className="w-9 h-9 border border-border flex items-center justify-center text-muted-foreground hover:text-gold hover:border-gold transition-colors"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            </a>
           </div>
         </div>
 
@@ -61,7 +69,9 @@ export function Footer() {
           <ul className="space-y-4 text-sm text-muted-foreground">
             <li className="flex items-start gap-3">
               <Phone size={16} className="text-gold mt-0.5 shrink-0" />
-              <span>WhatsApp: (67) 99348-8383</span>
+              <a href="tel:+5567993488383" className="hover:text-foreground transition-colors">
+                WhatsApp: (67) 99348-8383
+              </a>
             </li>
             <li className="flex items-start gap-3">
               <Mail size={16} className="text-gold mt-0.5 shrink-0" />

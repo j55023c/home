@@ -47,7 +47,7 @@ function Hero() {
           variants={fadeUp}
           className="text-xs uppercase tracking-luxe text-gold mb-6"
         >
-          Imóveis de alto padrão
+          Imobiliária em Três Lagoas — MS
         </motion.p>
         <motion.h1
           initial="hidden"
@@ -66,8 +66,9 @@ function Hero() {
           variants={fadeUp}
           className="mt-6 text-lg text-foreground/70 max-w-xl leading-relaxed"
         >
-          Curadoria exclusiva de residências, coberturas e propriedades singulares, com um
-          atendimento tão refinado quanto os imóveis que representamos.
+          A Home Imobiliária iniciou suas atividades visando construir a sua história no mercado
+          imobiliário de Três Lagoas, de forma sólida, confiável e duradoura. Ética, transparência
+          e atendimento personalizado.
         </motion.p>
 
         <motion.div
@@ -228,10 +229,10 @@ function Differentials() {
 
 function Stats() {
   const stats = [
-    { value: "18+", label: "Anos de mercado" },
-    { value: "R$ 2 bi", label: "Em negócios realizados" },
-    { value: "1.200+", label: "Famílias atendidas" },
-    { value: "98%", label: "Clientes satisfeitos" },
+    { value: "Há anos", label: "No mercado imobiliário de Três Lagoas" },
+    { value: "100+", label: "Imóveis em carteira" },
+    { value: "Famílias", label: "Atendidas com segurança" },
+    { value: "Ética", label: "E transparência sempre" },
   ];
   return (
     <section className="py-24 bg-background">

@@ -42,9 +42,9 @@ const TEAM = [
     img: "https://ui-avatars.com/api/?name=Silvana+Garcia&background=0b0b0c&color=gold&size=400",
   },
   {
-    name: "Liliane Lima",
+    name: "Liliane de Lima Texeira",
     role: "Corretora — CRECI 9821/MS",
-    img: "https://ui-avatars.com/api/?name=Liliane+Lima&background=0b0b0c&color=gold&size=400",
+    img: "https://cdn-img-src.imobibrasil.app.br/6b52fd7e0a91f198f233178e10091e0ed2628195/modulos/cadastros/202410272331243687.jpg",
   },
 ];
 
@@ -73,23 +73,29 @@ export default function SobrePage() {
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp}>
             <p className="text-xs uppercase tracking-luxe text-gold mb-4">Nossa história</p>
             <h2 className="font-display text-3xl md:text-4xl text-foreground mb-6">
-              Anos realizando bons negócios em Três Lagoas
+              Há anos realizando bons negócios em Três Lagoas
             </h2>
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                A Home iniciou sua trajetória no mercado imobiliário de Três Lagoas com um propósito
-                claro: construir uma história sólida, confiável e duradoura. Atuamos com um histórico
-                íntegro e ótimas negociações, porque ética profissional e transparência são
-                inegociáveis neste mercado.
+                A Home Imobiliária iniciou suas atividades visando construir a sua história no mercado
+                imobiliário de Três Lagoas, de forma sólida, confiável e duradoura.
               </p>
               <p>
-                Buscamos a excelência como caminho de crescimento, oferecendo aos nossos clientes um
-                atendimento personalizado que resulta em segurança em cada negócio realizado. Esse
-                dinamismo e profissionalismo na prestação de serviços fazem da Home uma das empresas
-                mais eficientes do mercado imobiliário regional.
+                Trata-se de imobiliária atuante no mercado, com um histórico íntegro e de ótimas
+                negociações. Ética profissional e transparência são imprescindíveis no mercado
+                imobiliário.
               </p>
               <p>
-                Venha com a gente — faça parte desta família você também!
+                A busca pela excelência é a maneira de crescimento neste mercado, sendo assim, a
+                Home Imobiliária oferece para os seus clientes um atendimento personalizado, o que
+                resulta em segurança a todos os negócios realizados, satisfazendo os nossos clientes.
+              </p>
+              <p>
+                A atuação com dinamismo e profissionalismo na prestação de serviços, faz da Home
+                Imobiliária uma das empresas mais eficientes no mercado imobiliário regional.
+              </p>
+              <p>
+                Venha conosco, faça parte desta família você também!
               </p>
             </div>
           </motion.div>
@@ -137,11 +143,11 @@ export default function SobrePage() {
         </div>
       </section>
 
-      {/* Team - Sócias */}
+      {/* Team - Sócias/Corretoras */}
       <section className="py-24 bg-background">
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-center max-w-2xl mx-auto mb-14">
-            <p className="text-xs uppercase tracking-luxe text-gold mb-4">Nossas sócias</p>
+            <p className="text-xs uppercase tracking-luxe text-gold mb-4">Nossas corretoras</p>
             <h2 className="font-display text-4xl text-foreground">Corretoras que fazem a diferença</h2>
           </div>
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
