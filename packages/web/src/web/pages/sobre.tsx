@@ -165,7 +165,9 @@ export default function SobrePage() {
                   <img
                     src={m.img}
                     alt={m.name}
-                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                    className={`w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ${
+                      m.name === "Marilza Galante" ? "object-[center_65%]" : ""
+                    }`}
                   />
                 </div>
                 <h3 className="font-display text-lg text-foreground">{m.name}</h3>
