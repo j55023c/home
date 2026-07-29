@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { motion } from "motion/react";
-import { Target, Eye, Heart, ArrowRight } from "lucide-react";
+import { Target, Eye, Heart, ArrowRight, UserCheck } from "lucide-react";
 import { Layout } from "../components/layout";
 
 const fadeUp = {
@@ -13,16 +13,39 @@ const fadeUp = {
 };
 
 const VALUES = [
-  { icon: Target, title: "Missão", text: "Conectar pessoas a imóveis que traduzem seus sonhos e projetos de vida, com transparência e excelência em cada etapa." },
-  { icon: Eye, title: "Visão", text: "Ser a referência em intermediação de imóveis de alto padrão, reconhecida pela confiança e pelo cuidado com cada cliente." },
-  { icon: Heart, title: "Valores", text: "Ética, discrição, atendimento personalizado e compromisso genuíno com o resultado de quem confia na Home." },
+  {
+    icon: Target,
+    title: "Missão",
+    text: "Construir uma história sólida, confiável e duradoura no mercado imobiliário de Três Lagoas, com ética profissional e transparência inegociáveis.",
+  },
+  {
+    icon: Eye,
+    title: "Visão",
+    text: "Ser referência em intermediação imobiliária regional, reconhecida pela excelência, dinamismo e segurança em cada negócio realizado.",
+  },
+  {
+    icon: Heart,
+    title: "Valores",
+    text: "Ética, transparência, atendimento personalizado e compromisso genuíno com o resultado de quem confia na Home.",
+  },
 ];
 
 const TEAM = [
-  { name: "Ricardo Almeida", role: "Diretor & Corretor", img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80" },
-  { name: "Beatriz Costa", role: "Consultora Sênior", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80" },
-  { name: "Fernando Lima", role: "Consultor de Investimentos", img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80" },
-  { name: "Carolina Nunes", role: "Relacionamento", img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=600&q=80" },
+  {
+    name: "Marilza Galante",
+    role: "Corretora — CRECI 6618/MS",
+    img: "https://ui-avatars.com/api/?name=Marilza+Galante&background=0b0b0c&color=gold&size=400",
+  },
+  {
+    name: "Silvana Garcia",
+    role: "Corretora — CRECI 8889/MS",
+    img: "https://ui-avatars.com/api/?name=Silvana+Garcia&background=0b0b0c&color=gold&size=400",
+  },
+  {
+    name: "Liliane Lima",
+    role: "Corretora — CRECI 9821/MS",
+    img: "https://ui-avatars.com/api/?name=Liliane+Lima&background=0b0b0c&color=gold&size=400",
+  },
 ];
 
 export default function SobrePage() {
@@ -50,21 +73,23 @@ export default function SobrePage() {
           <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp}>
             <p className="text-xs uppercase tracking-luxe text-gold mb-4">Nossa história</p>
             <h2 className="font-display text-3xl md:text-4xl text-foreground mb-6">
-              Há 18 anos realizando bons negócios
+              Anos realizando bons negócios em Três Lagoas
             </h2>
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                A Home Negócios Imobiliários nasceu da convicção de que comprar, vender ou alugar um
-                imóvel é uma das decisões mais importantes na vida de uma pessoa — e merece um
-                acompanhamento à altura.
+                A Home iniciou sua trajetória no mercado imobiliário de Três Lagoas com um propósito
+                claro: construir uma história sólida, confiável e duradoura. Atuamos com um histórico
+                íntegro e ótimas negociações, porque ética profissional e transparência são
+                inegociáveis neste mercado.
               </p>
               <p>
-                Construímos ao longo dos anos um portfólio criterioso de residências, coberturas e
-                propriedades singulares, sempre com o mesmo compromisso: entender de verdade quem
-                está do outro lado e cuidar de cada detalhe da negociação.
+                Buscamos a excelência como caminho de crescimento, oferecendo aos nossos clientes um
+                atendimento personalizado que resulta em segurança em cada negócio realizado. Esse
+                dinamismo e profissionalismo na prestação de serviços fazem da Home uma das empresas
+                mais eficientes do mercado imobiliário regional.
               </p>
               <p>
-                Mais do que fechar contratos, entregamos chaves de novos capítulos.
+                Venha com a gente — faça parte desta família você também!
               </p>
             </div>
           </motion.div>
@@ -82,8 +107,8 @@ export default function SobrePage() {
               className="w-full aspect-[4/5] object-cover"
             />
             <div className="absolute -bottom-6 -left-6 bg-gold text-black p-6 hidden md:block">
-              <p className="font-display text-3xl">18+</p>
-              <p className="text-xs uppercase tracking-[0.14em]">anos de mercado</p>
+              <p className="font-display text-3xl">CRECI</p>
+              <p className="text-xs uppercase tracking-[0.14em]">15986-J</p>
             </div>
           </motion.div>
         </div>
@@ -112,14 +137,14 @@ export default function SobrePage() {
         </div>
       </section>
 
-      {/* Team */}
+      {/* Team - Sócias */}
       <section className="py-24 bg-background">
         <div className="mx-auto max-w-7xl px-6">
           <div className="text-center max-w-2xl mx-auto mb-14">
-            <p className="text-xs uppercase tracking-luxe text-gold mb-4">Nossa equipe</p>
-            <h2 className="font-display text-4xl text-foreground">Consultores que fazem a diferença</h2>
+            <p className="text-xs uppercase tracking-luxe text-gold mb-4">Nossas sócias</p>
+            <h2 className="font-display text-4xl text-foreground">Corretoras que fazem a diferença</h2>
           </div>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {TEAM.map((m, i) => (
               <motion.div
                 key={m.name}
@@ -130,7 +155,7 @@ export default function SobrePage() {
                 variants={fadeUp}
                 className="group"
               >
-                <div className="relative aspect-[3/4] overflow-hidden mb-4 border border-border">
+                <div className="relative aspect-square overflow-hidden mb-4 border border-border rounded-xl">
                   <img
                     src={m.img}
                     alt={m.name}

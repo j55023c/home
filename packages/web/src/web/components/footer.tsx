@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Phone, Mail, MapPin, Instagram, Facebook, Linkedin } from "lucide-react";
+import { Phone, Mail, MapPin, Instagram, Facebook } from "lucide-react";
 
 export function Footer() {
   return (
@@ -12,20 +12,27 @@ export function Footer() {
               Negócios Imobiliários
             </span>
           </div>
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <p className="text-sm text-muted-foreground leading-relaxed mb-6">
             Curadoria de imóveis de alto padrão com atendimento sob medida. Realizamos o encontro
             entre pessoas e endereços extraordinários.
           </p>
-          <div className="flex gap-4 mt-6">
-            {[Instagram, Facebook, Linkedin].map((Icon, i) => (
-              <a
-                key={i}
-                href="#"
-                className="w-9 h-9 border border-border flex items-center justify-center text-muted-foreground hover:text-gold hover:border-gold transition-colors"
-              >
-                <Icon size={16} />
-              </a>
-            ))}
+          <div className="flex gap-4">
+            <a
+              href="https://instagram.com/homeimobiliariatl"
+              target="_blank"
+              rel="noreferrer"
+              className="w-9 h-9 border border-border flex items-center justify-center text-muted-foreground hover:text-gold hover:border-gold transition-colors"
+            >
+              <Instagram size={16} />
+            </a>
+            <a
+              href="https://facebook.com/profile.php?id=61566111946304"
+              target="_blank"
+              rel="noreferrer"
+              className="w-9 h-9 border border-border flex items-center justify-center text-muted-foreground hover:text-gold hover:border-gold transition-colors"
+            >
+              <Facebook size={16} />
+            </a>
           </div>
         </div>
 
@@ -54,15 +61,17 @@ export function Footer() {
           <ul className="space-y-4 text-sm text-muted-foreground">
             <li className="flex items-start gap-3">
               <Phone size={16} className="text-gold mt-0.5 shrink-0" />
-              <span>(11) 99999-9999</span>
+              <span>WhatsApp: (67) 99348-8383</span>
             </li>
             <li className="flex items-start gap-3">
               <Mail size={16} className="text-gold mt-0.5 shrink-0" />
-              <span>contato@homeimobiliaria.com.br</span>
+              <a href="mailto:homenegociosimobiliarios4@gmail.com" className="hover:text-foreground transition-colors">
+                homenegociosimobiliarios4@gmail.com
+              </a>
             </li>
             <li className="flex items-start gap-3">
               <MapPin size={16} className="text-gold mt-0.5 shrink-0" />
-              <span>Av. Brigadeiro Faria Lima, 1000<br />São Paulo — SP</span>
+              <span>Rua David Alexandria, 242 - Sala 02<br />Três Lagoas — MS</span>
             </li>
           </ul>
         </div>
@@ -70,8 +79,8 @@ export function Footer() {
 
       <div className="border-t border-border">
         <div className="mx-auto max-w-7xl px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} Home Negócios Imobiliários. Todos os direitos reservados.</p>
-          <p>CRECI 00000-J</p>
+          <p>© {new Date().getFullYear()} Imobiliária Home Negócios Imobiliários Ltda. Todos os direitos reservados.</p>
+          <p>CRECI 15986-J</p>
         </div>
       </div>
     </footer>

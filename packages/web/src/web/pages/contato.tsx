@@ -4,10 +4,10 @@ import { ContactForm } from "../components/contact-form";
 import { whatsappLink } from "../lib/format";
 
 const INFO = [
-  { icon: Phone, label: "Telefone", value: "(11) 99999-9999", href: "tel:+5511999999999" },
-  { icon: Mail, label: "E-mail", value: "contato@homeimobiliaria.com.br", href: "mailto:contato@homeimobiliaria.com.br" },
-  { icon: MapPin, label: "Endereço", value: "Av. Brigadeiro Faria Lima, 1000 — São Paulo, SP" },
-  { icon: Clock, label: "Horário", value: "Seg a Sex: 9h–19h · Sáb: 9h–13h" },
+  { icon: Phone, label: "Telefone", value: "(67) 99348-8383", href: "tel:+5567993488383" },
+  { icon: Mail, label: "E-mail", value: "homenegociosimobiliarios4@gmail.com", href: "mailto:homenegociosimobiliarios4@gmail.com" },
+  { icon: MapPin, label: "Endereço", value: "Rua David Alexandria, 242 - Sala 02, Três Lagoas/MS" },
+  { icon: Clock, label: "Horário", value: "Seg a Sex: 8h–18h · Sáb: 8h–12h" },
 ];
 
 export default function ContatoPage() {
@@ -55,7 +55,7 @@ export default function ContatoPage() {
             </div>
 
             <a
-              href={whatsappLink("Olá! Gostaria de falar com um consultor da Home.")}
+              href={whatsappLink("Olá, vim pelo site e gostaria de mais informações.")}
               target="_blank"
               rel="noreferrer"
               className="flex items-center justify-center gap-2 w-full bg-gold text-black py-4 text-sm uppercase tracking-[0.16em] hover:bg-gold-soft transition-colors"
@@ -65,8 +65,8 @@ export default function ContatoPage() {
 
             <div className="border border-border overflow-hidden">
               <iframe
-                title="Localização"
-                src="https://www.google.com/maps?q=Avenida+Brigadeiro+Faria+Lima+1000+Sao+Paulo&output=embed"
+                title="Localização da Home Negócios Imobiliários"
+                src="https://www.google.com/maps?q=Rua+David+Alexandria+242+Sala+02+Tr%C3%AAs+Lagoas+MS&output=embed"
                 className="w-full h-[280px] grayscale contrast-125"
                 loading="lazy"
               />

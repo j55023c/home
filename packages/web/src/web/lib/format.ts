@@ -20,7 +20,7 @@ export const PURPOSE_LABELS: Record<string, string> = {
   aluguel: "Aluguel",
 };
 
-export const WHATSAPP = "5511999999999";
+export const WHATSAPP = "5567993488383";
 
 export function whatsappLink(text: string) {
   return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text)}`;
