@@ -30,6 +30,14 @@ export interface SupabaseProperty {
   featured: boolean
   reference: string
   createdAt: string
+  corretora?: {
+    id: string
+    nome: string
+    foto: string | null
+    telefone: string | null
+    email: string | null
+    creci: string | null
+  } | null
   _raw?: {
     status: string
     publicado: boolean
@@ -45,7 +53,7 @@ export interface SupabaseProperty {
   }
 }
 
-function mapImovelToProperty(imovel: any, fotos: string[] = []) {
+function mapImovelToProperty(imovel: any, fotos: string[] = [], corretora: any = null): SupabaseProperty {
   const purposeMap: Record<string, string> = {
     venda: 'venda',
     aluguel: 'aluguel',
@@ -77,6 +85,14 @@ function mapImovelToProperty(imovel: any, fotos: string[] = []) {
     featured: imovel.destaque ?? false,
     reference: imovel.referencia ?? '',
     createdAt: imovel.created_at,
+    corretora: corretora ? {
+      id: corretora.id,
+      nome: corretora.nome,
+      foto: corretora.foto,
+      telefone: corretora.telefone,
+      email: corretora.email,
+      creci: corretora.creci,
+    } : null,
     _raw: {
       status: imovel.status,
       publicado: imovel.publicado,
@@ -99,7 +115,11 @@ export function useProperties(filters?: PropertyFilters) {
     queryFn: async () => {
       let query = supabase
         .from('imoveis')
-        .select('*')
+        .select(`
+          *,
+          imovel_fotos (url, ordem),
+          corretoras (id, nome, foto, telefone, email, creci)
+        `)
         .eq('publicado', true)
         .order('created_at', { ascending: false })
 
@@ -118,20 +138,13 @@ export function useProperties(filters?: PropertyFilters) {
       if (error) throw new Error(`Erro ao buscar imóveis: ${error.message}`)
       if (!imoveis || imoveis.length === 0) return []
 
-      const ids = imoveis.map((i) => i.id)
-      const { data: fotos } = await supabase
-        .from('imovel_fotos')
-        .select('imovel_id, url')
-        .in('imovel_id', ids)
-        .order('ordem', { ascending: true })
-
-      const fotosPorImovel: Record<string, string[]> = {}
-      ;(fotos ?? []).forEach((f) => {
-        if (!fotosPorImovel[f.imovel_id]) fotosPorImovel[f.imovel_id] = []
-        fotosPorImovel[f.imovel_id].push(f.url)
+      return imoveis.map((imovel: any) => {
+        const fotos = imovel.imovel_fotos
+          ?.sort((a: any, b: any) => (a.ordem ?? 0) - (b.ordem ?? 0))
+          .map((f: any) => f.url) ?? []
+        const corretora = imovel.corretoras?.[0] ?? null
+        return mapImovelToProperty(imovel, fotos, corretora)
       })
-
-      return imoveis.map((imovel) => mapImovelToProperty(imovel, fotosPorImovel[imovel.id] ?? []))
     },
   })
 }
@@ -142,7 +155,11 @@ export function useFeaturedProperties() {
     queryFn: async () => {
       const { data: imoveis, error } = await supabase
         .from('imoveis')
-        .select('*')
+        .select(`
+          *,
+          imovel_fotos (url, ordem),
+          corretoras (id, nome, foto, telefone, email, creci)
+        `)
         .eq('publicado', true)
         .eq('destaque', true)
         .order('created_at', { ascending: false })
@@ -151,20 +168,13 @@ export function useFeaturedProperties() {
       if (error) throw new Error(`Erro ao buscar destaques: ${error.message}`)
       if (!imoveis || imoveis.length === 0) return []
 
-      const ids = imoveis.map((i) => i.id)
-      const { data: fotos } = await supabase
-        .from('imovel_fotos')
-        .select('imovel_id, url')
-        .in('imovel_id', ids)
-        .order('ordem', { ascending: true })
-
-      const fotosPorImovel: Record<string, string[]> = {}
-      ;(fotos ?? []).forEach((f) => {
-        if (!fotosPorImovel[f.imovel_id]) fotosPorImovel[f.imovel_id] = []
-        fotosPorImovel[f.imovel_id].push(f.url)
+      return imoveis.map((imovel: any) => {
+        const fotos = imovel.imovel_fotos
+          ?.sort((a: any, b: any) => (a.ordem ?? 0) - (b.ordem ?? 0))
+          .map((f: any) => f.url) ?? []
+        const corretora = imovel.corretoras?.[0] ?? null
+        return mapImovelToProperty(imovel, fotos, corretora)
       })
-
-      return imoveis.map((imovel) => mapImovelToProperty(imovel, fotosPorImovel[imovel.id] ?? []))
     },
   })
 }
@@ -175,20 +185,23 @@ export function useProperty(id: string) {
     queryFn: async () => {
       const { data: imovel, error } = await supabase
         .from('imoveis')
-        .select('*')
+        .select(`
+          *,
+          imovel_fotos (url, ordem),
+          corretoras (id, nome, foto, telefone, email, creci)
+        `)
         .eq('id', id)
         .eq('publicado', true)
         .single()
 
       if (error || !imovel) throw new Error('Imóvel não encontrado')
 
-      const { data: fotos } = await supabase
-        .from('imovel_fotos')
-        .select('url')
-        .eq('imovel_id', id)
-        .order('ordem', { ascending: true })
+      const fotos = imovel.imovel_fotos
+        ?.sort((a: any, b: any) => (a.ordem ?? 0) - (b.ordem ?? 0))
+        .map((f: any) => f.url) ?? []
+      const corretora = imovel.corretoras?.[0] ?? null
 
-      return mapImovelToProperty(imovel, (fotos ?? []).map((f) => f.url))
+      return mapImovelToProperty(imovel, fotos, corretora)
     },
     enabled: !!id,
     staleTime: 30_000,
@@ -205,7 +218,7 @@ export function useCities() {
         .eq('publicado', true)
 
       if (error) throw new Error(`Erro ao buscar cidades: ${error.message}`)
-      const cidades = [...new Set((data ?? []).map((i) => i.cidade).filter(Boolean))].sort()
+      const cidades = [...new Set((data ?? []).map((i: any) => i.cidade).filter(Boolean))].sort()
       return cidades
     },
   })
