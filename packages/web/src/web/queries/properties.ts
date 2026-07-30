@@ -109,17 +109,41 @@ function mapImovelToProperty(imovel: any, fotos: string[] = [], corretora: any =
   }
 }
 
+async function fetchCorretoras(corretoraIds: string[]) {
+  if (!corretoraIds.length) return {}
+  const { data, error } = await supabase
+    .from('corretoras')
+    .select('id, nome, foto, telefone, email, creci')
+    .in('id', corretoraIds)
+  if (error) throw new Error(`Erro ao buscar corretoras: ${error.message}`)
+  const map: Record<string, any> = {}
+  ;(data ?? []).forEach((c: any) => { map[c.id] = c })
+  return map
+}
+
+async function fetchFotos(imovelIds: string[]) {
+  if (!imovelIds.length) return {}
+  const { data, error } = await supabase
+    .from('imovel_fotos')
+    .select('imovel_id, url, ordem')
+    .in('imovel_id', imovelIds)
+    .order('ordem', { ascending: true })
+  if (error) throw new Error(`Erro ao buscar fotos: ${error.message}`)
+  const map: Record<string, string[]> = {}
+  ;(data ?? []).forEach((f: any) => {
+    if (!map[f.imovel_id]) map[f.imovel_id] = []
+    map[f.imovel_id].push(f.url)
+  })
+  return map
+}
+
 export function useProperties(filters?: PropertyFilters) {
   return useQuery({
     queryKey: ['properties', filters],
     queryFn: async () => {
       let query = supabase
         .from('imoveis')
-        .select(`
-          *,
-          imovel_fotos (url, ordem),
-          corretoras (id, nome, foto, telefone, email, creci)
-        `)
+        .select('*')
         .eq('publicado', true)
         .order('created_at', { ascending: false })
 
@@ -138,13 +162,17 @@ export function useProperties(filters?: PropertyFilters) {
       if (error) throw new Error(`Erro ao buscar imóveis: ${error.message}`)
       if (!imoveis || imoveis.length === 0) return []
 
-      return imoveis.map((imovel: any) => {
-        const fotos = imovel.imovel_fotos
-          ?.sort((a: any, b: any) => (a.ordem ?? 0) - (b.ordem ?? 0))
-          .map((f: any) => f.url) ?? []
-        const corretora = imovel.corretoras?.[0] ?? null
-        return mapImovelToProperty(imovel, fotos, corretora)
-      })
+      const imovelIds = imoveis.map((i: any) => i.id)
+      const corretoraIds = [...new Set(imoveis.map((i: any) => i.corretora_id).filter(Boolean))]
+
+      const [fotosMap, corretorasMap] = await Promise.all([
+        fetchFotos(imovelIds),
+        fetchCorretoras(corretoraIds),
+      ])
+
+      return imoveis.map((imovel: any) =>
+        mapImovelToProperty(imovel, fotosMap[imovel.id] ?? [], corretorasMap[imovel.corretora_id] ?? null)
+      )
     },
   })
 }
@@ -155,11 +183,7 @@ export function useFeaturedProperties() {
     queryFn: async () => {
       const { data: imoveis, error } = await supabase
         .from('imoveis')
-        .select(`
-          *,
-          imovel_fotos (url, ordem),
-          corretoras (id, nome, foto, telefone, email, creci)
-        `)
+        .select('*')
         .eq('publicado', true)
         .eq('destaque', true)
         .order('created_at', { ascending: false })
@@ -168,13 +192,17 @@ export function useFeaturedProperties() {
       if (error) throw new Error(`Erro ao buscar destaques: ${error.message}`)
       if (!imoveis || imoveis.length === 0) return []
 
-      return imoveis.map((imovel: any) => {
-        const fotos = imovel.imovel_fotos
-          ?.sort((a: any, b: any) => (a.ordem ?? 0) - (b.ordem ?? 0))
-          .map((f: any) => f.url) ?? []
-        const corretora = imovel.corretoras?.[0] ?? null
-        return mapImovelToProperty(imovel, fotos, corretora)
-      })
+      const imovelIds = imoveis.map((i: any) => i.id)
+      const corretoraIds = [...new Set(imoveis.map((i: any) => i.corretora_id).filter(Boolean))]
+
+      const [fotosMap, corretorasMap] = await Promise.all([
+        fetchFotos(imovelIds),
+        fetchCorretoras(corretoraIds),
+      ])
+
+      return imoveis.map((imovel: any) =>
+        mapImovelToProperty(imovel, fotosMap[imovel.id] ?? [], corretorasMap[imovel.corretora_id] ?? null)
+      )
     },
   })
 }
@@ -185,23 +213,23 @@ export function useProperty(id: string) {
     queryFn: async () => {
       const { data: imovel, error } = await supabase
         .from('imoveis')
-        .select(`
-          *,
-          imovel_fotos (url, ordem),
-          corretoras (id, nome, foto, telefone, email, creci)
-        `)
+        .select('*')
         .eq('id', id)
         .eq('publicado', true)
         .single()
 
       if (error || !imovel) throw new Error('Imóvel não encontrado')
 
-      const fotos = imovel.imovel_fotos
-        ?.sort((a: any, b: any) => (a.ordem ?? 0) - (b.ordem ?? 0))
-        .map((f: any) => f.url) ?? []
-      const corretora = imovel.corretoras?.[0] ?? null
+      const [fotosMap, corretorasMap] = await Promise.all([
+        fetchFotos([imovel.id]),
+        imovel.corretora_id ? fetchCorretoras([imovel.corretora_id]) : Promise.resolve({}),
+      ])
 
-      return mapImovelToProperty(imovel, fotos, corretora)
+      return mapImovelToProperty(
+        imovel,
+        fotosMap[imovel.id] ?? [],
+        corretorasMap[imovel.corretora_id] ?? null
+      )
     },
     enabled: !!id,
     staleTime: 30_000,
