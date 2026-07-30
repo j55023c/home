@@ -109,19 +109,55 @@ function mapImovelToProperty(imovel: any, fotos: string[] = [], corretora: any =
   }
 }
 
+// Tenta buscar corretoras tentando diferentes nomes de coluna para foto
 async function fetchCorretoras(corretoraIds: string[]): Promise<Record<string, any>> {
   if (!corretoraIds.length) return {}
+  
+  const photoColumns = ['foto', 'photo', 'imagem', 'avatar', 'image_url', 'foto_url', 'image']
+  
+  for (const photoCol of photoColumns) {
+    try {
+      const selectCols = `id, nome, telefone, email, creci, ${photoCol}`
+      const { data, error } = await supabase
+        .from('corretoras')
+        .select(selectCols)
+        .in('id', corretoraIds)
+      
+      if (!error && data) {
+        const map: Record<string, any> = {}
+        ;(data ?? []).forEach((c: any) => {
+          map[c.id] = {
+            id: c.id,
+            nome: c.nome,
+            telefone: c.telefone,
+            email: c.email,
+            creci: c.creci,
+            foto: c[photoCol] ?? null, // mapeia para 'foto' padrão
+          }
+        })
+        console.log(`[corretoras] success with column '${photoCol}'`)
+        return map
+      }
+    } catch (e) {
+      // tenta próxima coluna
+    }
+  }
+  
+  // Fallback: busca sem coluna de foto
   try {
     const { data, error } = await supabase
       .from('corretoras')
-      .select('id, nome, foto, telefone, email, creci')
+      .select('id, nome, telefone, email, creci')
       .in('id', corretoraIds)
     if (error) {
       console.warn('[corretoras] fetch error:', error.message)
       return {}
     }
     const map: Record<string, any> = {}
-    ;(data ?? []).forEach((c: any) => { map[c.id] = c })
+    ;(data ?? []).forEach((c: any) => {
+      map[c.id] = { ...c, foto: null }
+    })
+    console.log('[corretoras] success without photo column')
     return map
   } catch (e) {
     console.warn('[corretoras] fetch exception:', e)
