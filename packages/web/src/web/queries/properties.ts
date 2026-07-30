@@ -109,32 +109,48 @@ function mapImovelToProperty(imovel: any, fotos: string[] = [], corretora: any =
   }
 }
 
-async function fetchCorretoras(corretoraIds: string[]) {
+async function fetchCorretoras(corretoraIds: string[]): Promise<Record<string, any>> {
   if (!corretoraIds.length) return {}
-  const { data, error } = await supabase
-    .from('corretoras')
-    .select('id, nome, foto, telefone, email, creci')
-    .in('id', corretoraIds)
-  if (error) throw new Error(`Erro ao buscar corretoras: ${error.message}`)
-  const map: Record<string, any> = {}
-  ;(data ?? []).forEach((c: any) => { map[c.id] = c })
-  return map
+  try {
+    const { data, error } = await supabase
+      .from('corretoras')
+      .select('id, nome, foto, telefone, email, creci')
+      .in('id', corretoraIds)
+    if (error) {
+      console.warn('[corretoras] fetch error:', error.message)
+      return {}
+    }
+    const map: Record<string, any> = {}
+    ;(data ?? []).forEach((c: any) => { map[c.id] = c })
+    return map
+  } catch (e) {
+    console.warn('[corretoras] fetch exception:', e)
+    return {}
+  }
 }
 
-async function fetchFotos(imovelIds: string[]) {
+async function fetchFotos(imovelIds: string[]): Promise<Record<string, string[]>> {
   if (!imovelIds.length) return {}
-  const { data, error } = await supabase
-    .from('imovel_fotos')
-    .select('imovel_id, url, ordem')
-    .in('imovel_id', imovelIds)
-    .order('ordem', { ascending: true })
-  if (error) throw new Error(`Erro ao buscar fotos: ${error.message}`)
-  const map: Record<string, string[]> = {}
-  ;(data ?? []).forEach((f: any) => {
-    if (!map[f.imovel_id]) map[f.imovel_id] = []
-    map[f.imovel_id].push(f.url)
-  })
-  return map
+  try {
+    const { data, error } = await supabase
+      .from('imovel_fotos')
+      .select('imovel_id, url, ordem')
+      .in('imovel_id', imovelIds)
+      .order('ordem', { ascending: true })
+    if (error) {
+      console.warn('[fotos] fetch error:', error.message)
+      return {}
+    }
+    const map: Record<string, string[]> = {}
+    ;(data ?? []).forEach((f: any) => {
+      if (!map[f.imovel_id]) map[f.imovel_id] = []
+      map[f.imovel_id].push(f.url)
+    })
+    return map
+  } catch (e) {
+    console.warn('[fotos] fetch exception:', e)
+    return {}
+  }
 }
 
 export function useProperties(filters?: PropertyFilters) {
