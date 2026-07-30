@@ -17,6 +17,7 @@
         "./src/web/*"
       ]
     },
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "module": "ESNext"
   }
 }
