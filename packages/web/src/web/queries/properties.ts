@@ -53,6 +53,35 @@ export interface SupabaseProperty {
   }
 }
 
+// Mapeamento de corretoras para fotos padronizadas (do /sobre)
+const CORRETORA_IMAGES: Record<string, string> = {
+  // Por nome
+  'Liliane de Lima Texeira': '/images/team/liliane.png',
+  'Liliane de Lima Teixeira': '/images/team/liliane.png', // variação
+  'Marilza Galante': '/images/team/marilza.png',
+  'Silvana Garcia': '/images/team/silvana.png',
+  // Por CRECI
+  '9821': '/images/team/liliane.png',
+  '6618': '/images/team/marilza.png',
+  '8889': '/images/team/silvana.png',
+}
+
+function getCorretoraImage(corretora: { nome?: string; creci?: string | null } | null): string | null {
+  if (!corretora) return null
+  // Tenta por nome exato
+  if (corretora.nome && CORRETORA_IMAGES[corretora.nome]) {
+    return CORRETORA_IMAGES[corretora.nome]
+  }
+  // Tenta por CRECI (últimos 4 dígitos)
+  if (corretora.creci) {
+    const creciNum = corretora.creci.replace(/\D/g, '').slice(-4)
+    if (CORRETORA_IMAGES[creciNum]) {
+      return CORRETORA_IMAGES[creciNum]
+    }
+  }
+  return null
+}
+
 function mapImovelToProperty(imovel: any, fotos: string[] = [], corretora: any = null): SupabaseProperty {
   const purposeMap: Record<string, string> = {
     venda: 'venda',
@@ -65,6 +94,9 @@ function mapImovelToProperty(imovel: any, fotos: string[] = [], corretora: any =
     terreno: 'terreno',
     comercial: 'comercial',
   }
+
+  // Pega a foto padronizada da corretora
+  const corretoraImage = getCorretoraImage(corretora)
 
   return {
     id: imovel.id,
@@ -88,7 +120,7 @@ function mapImovelToProperty(imovel: any, fotos: string[] = [], corretora: any =
     corretora: corretora ? {
       id: corretora.id,
       nome: corretora.nome,
-      foto: corretora.foto,
+      foto: corretoraImage, // usa foto padronizada
       telefone: corretora.telefone,
       email: corretora.email,
       creci: corretora.creci,
@@ -109,23 +141,10 @@ function mapImovelToProperty(imovel: any, fotos: string[] = [], corretora: any =
   }
 }
 
-// Mapeia colunas reais da tabela corretoras para nosso formato padrão
-function normalizeCorretora(c: any): any {
-  return {
-    id: c.id,
-    nome: c.nome ?? c.name ?? c.nome_completo ?? c.razao_social ?? '',
-    foto: c.foto ?? c.foto_url ?? c.imagem ?? c.avatar ?? c.photo ?? c.image_url ?? c.image ?? c.foto_path ?? null,
-    telefone: c.telefone ?? c.phone ?? c.celular ?? c.whatsapp ?? c.contato ?? c.telefone_celular ?? c.mobile ?? null,
-    email: c.email ?? c.e_mail ?? c.mail ?? null,
-    creci: c.creci ?? c.creci_numero ?? c.creci_number ?? c.registro_creci ?? null,
-  }
-}
-
 async function fetchCorretoras(corretoraIds: string[]): Promise<Record<string, any>> {
   if (!corretoraIds.length) return {}
   
   try {
-    // Busca todas as colunas e normaliza depois
     const { data, error } = await supabase
       .from('corretoras')
       .select('*')
@@ -138,7 +157,7 @@ async function fetchCorretoras(corretoraIds: string[]): Promise<Record<string, a
     
     const map: Record<string, any> = {}
     ;(data ?? []).forEach((c: any) => {
-      map[c.id] = normalizeCorretora(c)
+      map[c.id] = c
     })
     console.log('[corretoras] success with select *')
     return map
