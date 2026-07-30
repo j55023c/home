@@ -1,3 +1,3 @@
 export default function handler(req: Request) {
-  return new Response('hello');
+  return new Response('hello from api');
 }
