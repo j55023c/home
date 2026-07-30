@@ -39,9 +39,9 @@ export function createApp(router: Router<Record<never, never>, RpcContext>) {
   app.get("/api/health", (c) => c.json({ status: "ok" }, 200));
 
   const handler = new RPCHandler(router);
-  app.use("/rpc/*", async (c, next) => {
+  app.use("/api/rpc/*", async (c, next) => {
     const { matched, response } = await handler.handle(c.req.raw, {
-      prefix: "/rpc",
+      prefix: "/api/rpc",
       context: { headers: c.req.raw.headers },
     });
     if (matched) return c.newResponse(response.body, response);

@@ -1,8 +1,5 @@
-export const config = { runtime: 'edge' };
+import { handle } from 'hono/vercel';
+import app from '../src/api/index';
 
-export default async function handler(request: Request) {
-  return new Response('Hello World!', {
-    status: 200,
-    headers: { 'Content-Type': 'text/plain' }
-  });
-}
+export const config = { runtime: 'edge' };
+export default handle(app);
