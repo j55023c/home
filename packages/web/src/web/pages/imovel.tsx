@@ -11,7 +11,7 @@ import { ContactForm } from "../components/contact-form";
 
 export default function ImovelPage() {
   const { id } = useParams<{ id: string }>();
-  const { data: p, isLoading, isError } = useProperty(Number(id));
+  const { data: p, isLoading, isError } = useProperty(id);
   const [active, setActive] = useState(0);
 
   if (isLoading) {
