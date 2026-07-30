@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Link, useParams } from "wouter";
 import {
   BedDouble, Bath, Car, Maximize, MapPin, Check, ArrowLeft,
-  Phone, MessageCircle, ChevronLeft, ChevronRight,
+  Phone, MessageCircle, ChevronLeft, ChevronRight, Mail,
 } from "lucide-react";
 import { Layout } from "../components/layout";
 import { useProperty } from "../queries/properties";
-import { formatPrice, PURPOSE_LABELS, TYPE_LABELS, whatsappLink } from "../lib/format";
+import { formatPrice, PURPOSE_LABELS, TYPE_LABELS, whatsappLink, formatPhone } from "../lib/format";
 import { ContactForm } from "../components/contact-form";
 
 export default function ImovelPage() {
@@ -160,21 +160,47 @@ export default function ImovelPage() {
               </p>
 
               <a
-                href={whatsappLink(waText)}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center justify-center gap-2 w-full bg-gold text-black py-3.5 text-sm uppercase tracking-[0.14em] hover:bg-gold-soft transition-colors mb-3"
-              >
-                <MessageCircle size={17} /> WhatsApp
-              </a>
-              <a
-                href="tel:+5511999999999"
-                className="flex items-center justify-center gap-2 w-full border border-gold text-gold py-3.5 text-sm uppercase tracking-[0.14em] hover:bg-gold hover:text-black transition-colors mb-7"
-              >
-                <Phone size={16} /> (11) 99999-9999
-              </a>
+                              href={whatsappLink(waText)}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex items-center justify-center gap-2 w-full bg-gold text-black py-3.5 text-sm uppercase tracking-[0.14em] hover:bg-gold-soft transition-colors mb-3"
+                            >
+                              <MessageCircle size={17} /> WhatsApp
+                            </a>
+                            <a
+                              href={`tel:${p.corretora?.telefone || import.meta.env.VITE_WHATSAPP || '5567993488383'}`}
+                              className="flex items-center justify-center gap-2 w-full border border-gold text-gold py-3.5 text-sm uppercase tracking-[0.14em] hover:bg-gold hover:text-black transition-colors mb-7"
+                            >
+                              <Phone size={16} /> {p.corretora?.telefone ? formatPhone(p.corretora.telefone) : '(67) 99348-8383'}
+                            </a>
 
-              <div className="border-t border-border pt-6">
+                            {p.corretora && (
+                              <div className="border-t border-border pt-6 mb-6">
+                                <p className="font-display text-lg text-foreground mb-4">Corretora responsável</p>
+                                <div className="flex items-center gap-4">
+                                  {p.corretora.foto && (
+                                    <img
+                                      src={p.corretora.foto}
+                                      alt={p.corretora.nome}
+                                      className="w-16 h-16 rounded-full object-cover border border-border"
+                                    />
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-medium text-foreground truncate">{p.corretora.nome}</p>
+                                    {p.corretora.creci && (
+                                      <p className="text-xs text-muted-foreground">CRECI: {p.corretora.creci}</p>
+                                    )}
+                                    {p.corretora.email && (
+                                      <a href={`mailto:${p.corretora.email}`} className="text-xs text-gold hover:underline flex items-center gap-1 mt-1">
+                                        <Mail size={12} /> {p.corretora.email}
+                                      </a>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="border-t border-border pt-6">
                 <p className="font-display text-lg text-foreground mb-1">Agende uma visita</p>
                 <p className="text-xs text-muted-foreground mb-5">
                   Deixe seus dados e um consultor entrará em contato.
