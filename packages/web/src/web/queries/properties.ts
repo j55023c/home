@@ -109,55 +109,38 @@ function mapImovelToProperty(imovel: any, fotos: string[] = [], corretora: any =
   }
 }
 
-// Tenta buscar corretoras tentando diferentes nomes de coluna para foto
+// Mapeia colunas reais da tabela corretoras para nosso formato padrão
+function normalizeCorretora(c: any): any {
+  return {
+    id: c.id,
+    nome: c.nome ?? c.name ?? c.nome_completo ?? c.razao_social ?? '',
+    foto: c.foto ?? c.foto_url ?? c.imagem ?? c.avatar ?? c.photo ?? c.image_url ?? c.image ?? c.foto_path ?? null,
+    telefone: c.telefone ?? c.phone ?? c.celular ?? c.whatsapp ?? c.contato ?? c.telefone_celular ?? c.mobile ?? null,
+    email: c.email ?? c.e_mail ?? c.mail ?? null,
+    creci: c.creci ?? c.creci_numero ?? c.creci_number ?? c.registro_creci ?? null,
+  }
+}
+
 async function fetchCorretoras(corretoraIds: string[]): Promise<Record<string, any>> {
   if (!corretoraIds.length) return {}
   
-  const photoColumns = ['foto', 'photo', 'imagem', 'avatar', 'image_url', 'foto_url', 'image']
-  
-  for (const photoCol of photoColumns) {
-    try {
-      const selectCols = `id, nome, telefone, email, creci, ${photoCol}`
-      const { data, error } = await supabase
-        .from('corretoras')
-        .select(selectCols)
-        .in('id', corretoraIds)
-      
-      if (!error && data) {
-        const map: Record<string, any> = {}
-        ;(data ?? []).forEach((c: any) => {
-          map[c.id] = {
-            id: c.id,
-            nome: c.nome,
-            telefone: c.telefone,
-            email: c.email,
-            creci: c.creci,
-            foto: c[photoCol] ?? null, // mapeia para 'foto' padrão
-          }
-        })
-        console.log(`[corretoras] success with column '${photoCol}'`)
-        return map
-      }
-    } catch (e) {
-      // tenta próxima coluna
-    }
-  }
-  
-  // Fallback: busca sem coluna de foto
   try {
+    // Busca todas as colunas e normaliza depois
     const { data, error } = await supabase
       .from('corretoras')
-      .select('id, nome, telefone, email, creci')
+      .select('*')
       .in('id', corretoraIds)
+    
     if (error) {
       console.warn('[corretoras] fetch error:', error.message)
       return {}
     }
+    
     const map: Record<string, any> = {}
     ;(data ?? []).forEach((c: any) => {
-      map[c.id] = { ...c, foto: null }
+      map[c.id] = normalizeCorretora(c)
     })
-    console.log('[corretoras] success without photo column')
+    console.log('[corretoras] success with select *')
     return map
   } catch (e) {
     console.warn('[corretoras] fetch exception:', e)
