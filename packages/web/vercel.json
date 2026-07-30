@@ -3,12 +3,13 @@
   "buildCommand": "bun run build",
   "outputDirectory": "dist",
   "functions": {
-    "api/[...path].ts": {
+    "api/index.ts": {
       "maxDuration": 30,
       "includeFiles": "**"
     }
   },
   "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/index.ts" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
