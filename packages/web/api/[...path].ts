@@ -1,14 +1,14 @@
-// Vercel Serverless Function — ponte entre o roteamento de arquivo da Vercel
-// (api/[...path].ts, captura tudo em /api/*) e o app Hono/oRPC já existente
-// em src/api/index.ts. Nenhuma rota é duplicada aqui: só delega.
-//
-// Runtime edge porque o driver do Turso (@libsql/client) fala HTTP e é
-// compatível com edge — evita cold start de função Node completa.
-import { handle } from "hono/vercel";
-import app from "../src/api/index";
+import { handle } from 'hono/vercel';
+import { Hono } from 'hono';
+import app from '../src/api/index';
 
-export const config = {
-  runtime: "edge",
-};
+const edgeApp = new Hono();
 
-export default handle(app);
+// Test route to verify edge function is working
+edgeApp.get('/edge-test', (c) => c.json({ ok: true, msg: 'edge function works' }));
+
+// Mount the main app under /rpc
+edgeApp.route('/rpc', app);
+
+export const config = { runtime: 'edge' };
+export default handle(edgeApp);
