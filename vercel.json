@@ -1,9 +1,0 @@
-{
-  "buildCommand": "cd packages/web && bun run build",
-  "outputDirectory": "packages/web/dist",
-  "functions": {
-    "packages/web/api/index.ts": {
-      "maxDuration": 30
-    }
-  }
-}
