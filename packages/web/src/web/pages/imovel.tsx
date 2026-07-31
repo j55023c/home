@@ -3,7 +3,6 @@ import { Link, useParams } from "wouter";
 import {
   BedDouble, Bath, Car, Maximize, MapPin, Check, ArrowLeft,
   Phone, MessageCircle, ChevronLeft, ChevronRight, Mail,
-  Download,
 } from "lucide-react";
 import { Layout } from "../components/layout";
 import { useProperty } from "../queries/properties";
@@ -67,16 +66,14 @@ export default function ImovelPage() {
       {/* Gallery */}
       <section className="bg-[#08080a] pb-4">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="relative aspect-[16/9] md:aspect-[21/9] overflow-hidden bg-black group">
+          <div className="relative aspect-[16/9] md:aspect-[21/9] overflow-hidden bg-black">
             <ImageWithWatermark
               src={images[active]}
               alt={p.title}
               className="w-full h-full object-cover"
               watermarkSrc="/logo.jpg"
-              watermarkOpacity={0.08}
+              watermarkOpacity={0.07}
               watermarkSize={120}
-              enableDownload
-              downloadFilename={`${p.reference}-${p.title}`}
             />
             <span className="absolute top-5 left-5 bg-gold text-black text-xs uppercase tracking-[0.14em] px-3 py-1">
               {PURPOSE_LABELS[p.purpose]}

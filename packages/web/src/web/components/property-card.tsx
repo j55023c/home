@@ -51,9 +51,9 @@ export function PropertyCard({ property }: { property: SupabaseProperty }) {
           src={imagemCapa}
           alt={property.title}
           loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-[900ms] group-hover:scale-105"
+          className="w-full h-full object-cover"
           watermarkSrc="/logo.jpg"
-          watermarkOpacity={0.1}
+          watermarkOpacity={0.09}
           watermarkSize={120}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
