@@ -91,6 +91,7 @@ export default function ImovelPage() {
               watermarkOpacity={0.07}
               watermarkSize={120}
               disableContextMenu
+              allowClick
               onClick={() => images.length > 1 && openLightbox(active)}
             />
             <span className="absolute top-5 left-5 bg-gold text-black text-xs uppercase tracking-[0.14em] px-3 py-1">
@@ -131,6 +132,7 @@ export default function ImovelPage() {
                     watermarkOpacity={0.06}
                     watermarkSize={120}
                     disableContextMenu
+                    allowClick
                     onClick={() => openLightbox(i)}
                   />
                 </button>

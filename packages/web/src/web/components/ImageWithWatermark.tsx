@@ -5,6 +5,7 @@ interface ImageWithWatermarkProps extends React.ImgHTMLAttributes<HTMLImageEleme
   watermarkOpacity?: number;
   watermarkSize?: number;
   disableContextMenu?: boolean;
+  allowClick?: boolean;
 }
 
 export const ImageWithWatermark = forwardRef<HTMLImageElement, ImageWithWatermarkProps>(
@@ -16,9 +17,11 @@ export const ImageWithWatermark = forwardRef<HTMLImageElement, ImageWithWatermar
       watermarkOpacity = 0.07,
       watermarkSize = 120,
       disableContextMenu = false,
+      allowClick = false,
       className = "",
       style,
       onContextMenu,
+      onClick,
       ...props
     },
     ref
@@ -39,6 +42,7 @@ export const ImageWithWatermark = forwardRef<HTMLImageElement, ImageWithWatermar
           alt={alt}
           className={className}
           onContextMenu={handleContextMenu}
+          onClick={allowClick ? onClick : undefined}
           style={{
             display: "block",
             width: "100%",
@@ -46,7 +50,7 @@ export const ImageWithWatermark = forwardRef<HTMLImageElement, ImageWithWatermar
             objectFit: "cover",
             userSelect: "none",
             WebkitUserSelect: "none",
-            pointerEvents: "none",
+            pointerEvents: allowClick ? "auto" : "none",
             transform: "none",
             ...props.style,
           }}
