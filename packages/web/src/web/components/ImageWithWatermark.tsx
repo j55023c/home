@@ -30,38 +30,28 @@ export const ImageWithWatermark = forwardRef<HTMLImageElement, ImageWithWatermar
       onContextMenu?.(e);
     };
 
-    // Separate wrapper styles from image styles
-    const wrapperClassName = `relative inline-block overflow-hidden`;
-    const imageClassName = className;
-
     return (
-      <div
-        className={wrapperClassName}
-        style={{
-          display: "inline-block",
-          lineHeight: 0,
-          ...style,
-        }}
-      >
-        {/* Main image */}
+      <>
+        {/* Main image - fills container, no wrapper div */}
         <img
           ref={ref}
           src={src}
           alt={alt}
-          className={imageClassName}
+          className={className}
           onContextMenu={handleContextMenu}
           style={{
             display: "block",
             width: "100%",
-            height: "auto",
+            height: "100%",
+            objectFit: "cover",
             userSelect: "none",
             WebkitUserSelect: "none",
+            pointerEvents: "none",
             transform: "none",
             ...props.style,
           }}
           {...props}
         />
-
         {/* Visual watermark overlay (full-screen repeating pattern via CSS) */}
         <div
           className="absolute inset-0 pointer-events-none"
@@ -73,7 +63,7 @@ export const ImageWithWatermark = forwardRef<HTMLImageElement, ImageWithWatermar
           }}
           aria-hidden="true"
         />
-      </div>
+      </>
     );
   }
 );
