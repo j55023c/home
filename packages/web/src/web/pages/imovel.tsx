@@ -8,6 +8,7 @@ import { Layout } from "../components/layout";
 import { useProperty } from "../queries/properties";
 import { formatPrice, PURPOSE_LABELS, TYPE_LABELS, whatsappLink, formatPhone } from "../lib/format";
 import { ContactForm } from "../components/contact-form";
+import { ImageWithWatermark } from "../components/ImageWithWatermark";
 
 export default function ImovelPage() {
   const { id } = useParams<{ id: string }>();
@@ -66,7 +67,15 @@ export default function ImovelPage() {
       <section className="bg-[#08080a] pb-4">
         <div className="mx-auto max-w-7xl px-6">
           <div className="relative aspect-[16/9] md:aspect-[21/9] overflow-hidden bg-black">
-            <img src={images[active]} alt={p.title} className="w-full h-full object-cover" />
+            <ImageWithWatermark
+              src={images[active]}
+              alt={p.title}
+              className="w-full h-full object-cover"
+              watermarkSrc="/logo.jpg"
+              watermarkOpacity={0.08}
+              watermarkPosition="bottom-right"
+              watermarkSize={12}
+            />
             <span className="absolute top-5 left-5 bg-gold text-black text-xs uppercase tracking-[0.14em] px-3 py-1">
               {PURPOSE_LABELS[p.purpose]}
             </span>
@@ -97,7 +106,15 @@ export default function ImovelPage() {
                     active === i ? "border-gold" : "border-transparent opacity-60 hover:opacity-100"
                   } transition-all`}
                 >
-                  <img src={src} alt="" className="w-full h-full object-cover" />
+                  <ImageWithWatermark
+                    src={src}
+                    alt=""
+                    className="w-full h-full object-cover"
+                    watermarkSrc="/logo.jpg"
+                    watermarkOpacity={0.06}
+                    watermarkPosition="bottom-right"
+                    watermarkSize={20}
+                  />
                 </button>
               ))}
             </div>
@@ -160,47 +177,47 @@ export default function ImovelPage() {
               </p>
 
               <a
-                              href={whatsappLink(waText)}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="flex items-center justify-center gap-2 w-full bg-gold text-black py-3.5 text-sm uppercase tracking-[0.14em] hover:bg-gold-soft transition-colors mb-3"
-                            >
-                              <MessageCircle size={17} /> WhatsApp
-                            </a>
-                            <a
-                              href={`tel:${p.corretora?.telefone || import.meta.env.VITE_WHATSAPP || '5567993488383'}`}
-                              className="flex items-center justify-center gap-2 w-full border border-gold text-gold py-3.5 text-sm uppercase tracking-[0.14em] hover:bg-gold hover:text-black transition-colors mb-7"
-                            >
-                              <Phone size={16} /> {p.corretora?.telefone ? formatPhone(p.corretora.telefone) : '(67) 99348-8383'}
-                            </a>
+                href={whatsappLink(waText)}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-center gap-2 w-full bg-gold text-black py-3.5 text-sm uppercase tracking-[0.14em] hover:bg-gold-soft transition-colors mb-3"
+              >
+                <MessageCircle size={17} /> WhatsApp
+              </a>
+              <a
+                href={`tel:${p.corretora?.telefone || import.meta.env.VITE_WHATSAPP || '5567993488383'}`}
+                className="flex items-center justify-center gap-2 w-full border border-gold text-gold py-3.5 text-sm uppercase tracking-[0.14em] hover:bg-gold hover:text-black transition-colors mb-7"
+              >
+                <Phone size={16} /> {p.corretora?.telefone ? formatPhone(p.corretora.telefone) : '(67) 99348-8383'}
+              </a>
 
-                            {p.corretora && (
-                              <div className="border-t border-border pt-6 mb-6">
-                                <p className="font-display text-lg text-foreground mb-4">Corretora responsável</p>
-                                <div className="flex items-center gap-4">
-                                  {p.corretora.foto && (
-                                    <img
-                                      src={p.corretora.foto}
-                                      alt={p.corretora.nome}
-                                      className="w-16 h-16 rounded-full object-cover border border-border"
-                                    />
-                                  )}
-                                  <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-foreground truncate">{p.corretora.nome}</p>
-                                    {p.corretora.creci && (
-                                      <p className="text-xs text-muted-foreground">CRECI: {p.corretora.creci}</p>
-                                    )}
-                                    {p.corretora.email && (
-                                      <a href={`mailto:${p.corretora.email}`} className="text-xs text-gold hover:underline flex items-center gap-1 mt-1">
-                                        <Mail size={12} /> {p.corretora.email}
-                                      </a>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            )}
+              {p.corretora && (
+                <div className="border-t border-border pt-6 mb-6">
+                  <p className="font-display text-lg text-foreground mb-4">Corretora responsável</p>
+                  <div className="flex items-center gap-4">
+                    {p.corretora.foto && (
+                      <img
+                        src={p.corretora.foto}
+                        alt={p.corretora.nome}
+                        className="w-16 h-16 rounded-full object-cover border border-border"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-foreground truncate">{p.corretora.nome}</p>
+                      {p.corretora.creci && (
+                        <p className="text-xs text-muted-foreground">CRECI: {p.corretora.creci}</p>
+                      )}
+                      {p.corretora.email && (
+                        <a href={`mailto:${p.corretora.email}`} className="text-xs text-gold hover:underline flex items-center gap-1 mt-1">
+                          <Mail size={12} /> {p.corretora.email}
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
 
-                            <div className="border-t border-border pt-6">
+              <div className="border-t border-border pt-6">
                 <p className="font-display text-lg text-foreground mb-1">Agende uma visita</p>
                 <p className="text-xs text-muted-foreground mb-5">
                   Deixe seus dados e um consultor entrará em contato.

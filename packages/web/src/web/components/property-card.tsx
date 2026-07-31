@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { BedDouble, Bath, Car, Maximize } from "lucide-react";
 import { formatPrice, PURPOSE_LABELS, TYPE_LABELS } from "../lib/format";
+import { ImageWithWatermark } from "./ImageWithWatermark";
 
 export interface SupabaseProperty {
   id: string;
@@ -46,11 +47,15 @@ export function PropertyCard({ property }: { property: SupabaseProperty }) {
       className="group block bg-card border border-border overflow-hidden hover:border-gold/50 transition-colors duration-500"
     >
       <div className="relative aspect-[4/3] overflow-hidden">
-        <img
+        <ImageWithWatermark
           src={imagemCapa}
           alt={property.title}
           loading="lazy"
           className="w-full h-full object-cover transition-transform duration-[900ms] group-hover:scale-105"
+          watermarkSrc="/logo.jpg"
+          watermarkOpacity={0.1}
+          watermarkPosition="bottom-right"
+          watermarkSize={18}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         <span className="absolute top-4 left-4 bg-gold text-black text-[0.65rem] uppercase tracking-[0.14em] px-3 py-1 font-medium">
