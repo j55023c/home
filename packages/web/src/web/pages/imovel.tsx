@@ -103,7 +103,7 @@ export default function ImovelPage() {
                   onClick={() => setActive(i)}
                   className={`relative shrink-0 w-28 h-20 overflow-hidden border ${
                     active === i ? "border-gold" : "border-transparent opacity-60 hover:opacity-100"
-                  } transition-all`}
+                  }`}
                 >
                   <ImageWithWatermark
                     src={src}
