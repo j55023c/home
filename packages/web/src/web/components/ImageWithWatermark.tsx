@@ -30,9 +30,13 @@ export const ImageWithWatermark = forwardRef<HTMLImageElement, ImageWithWatermar
       onContextMenu?.(e);
     };
 
+    // Separate wrapper styles from image styles
+    const wrapperClassName = `relative inline-block overflow-hidden`;
+    const imageClassName = className;
+
     return (
       <div
-        className={`relative inline-block overflow-hidden ${className}`}
+        className={wrapperClassName}
         style={{
           display: "inline-block",
           lineHeight: 0,
@@ -44,7 +48,7 @@ export const ImageWithWatermark = forwardRef<HTMLImageElement, ImageWithWatermar
           ref={ref}
           src={src}
           alt={alt}
-          className={className}
+          className={imageClassName}
           onContextMenu={handleContextMenu}
           style={{
             display: "block",
@@ -52,6 +56,7 @@ export const ImageWithWatermark = forwardRef<HTMLImageElement, ImageWithWatermar
             height: "auto",
             userSelect: "none",
             WebkitUserSelect: "none",
+            transform: "none",
             ...props.style,
           }}
           {...props}
