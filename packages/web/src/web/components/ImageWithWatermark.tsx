@@ -4,6 +4,7 @@ interface ImageWithWatermarkProps extends React.ImgHTMLAttributes<HTMLImageEleme
   watermarkSrc?: string;
   watermarkOpacity?: number;
   watermarkSize?: number;
+  disableContextMenu?: boolean;
 }
 
 export const ImageWithWatermark = forwardRef<HTMLImageElement, ImageWithWatermarkProps>(
@@ -14,12 +15,21 @@ export const ImageWithWatermark = forwardRef<HTMLImageElement, ImageWithWatermar
       watermarkSrc = "/logo.jpg",
       watermarkOpacity = 0.07,
       watermarkSize = 120,
+      disableContextMenu = false,
       className = "",
       style,
+      onContextMenu,
       ...props
     },
     ref
   ) => {
+    const handleContextMenu = (e: React.MouseEvent<HTMLImageElement>) => {
+      if (disableContextMenu) {
+        e.preventDefault();
+      }
+      onContextMenu?.(e);
+    };
+
     return (
       <div
         className={`relative inline-block overflow-hidden ${className}`}
@@ -35,10 +45,13 @@ export const ImageWithWatermark = forwardRef<HTMLImageElement, ImageWithWatermar
           src={src}
           alt={alt}
           className={className}
+          onContextMenu={handleContextMenu}
           style={{
             display: "block",
             width: "100%",
             height: "auto",
+            userSelect: "none",
+            WebkitUserSelect: "none",
             ...props.style,
           }}
           {...props}
