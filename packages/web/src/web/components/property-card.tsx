@@ -54,8 +54,7 @@ export function PropertyCard({ property }: { property: SupabaseProperty }) {
           className="w-full h-full object-cover transition-transform duration-[900ms] group-hover:scale-105"
           watermarkSrc="/logo.jpg"
           watermarkOpacity={0.1}
-          watermarkPosition="bottom-right"
-          watermarkSize={18}
+          watermarkSize={120}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         <span className="absolute top-4 left-4 bg-gold text-black text-[0.65rem] uppercase tracking-[0.14em] px-3 py-1 font-medium">
