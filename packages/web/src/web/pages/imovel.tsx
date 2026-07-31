@@ -9,11 +9,14 @@ import { useProperty } from "../queries/properties";
 import { formatPrice, PURPOSE_LABELS, TYPE_LABELS, whatsappLink, formatPhone } from "../lib/format";
 import { ContactForm } from "../components/contact-form";
 import { ImageWithWatermark } from "../components/ImageWithWatermark";
+import { Lightbox } from "../components/Lightbox";
 
 export default function ImovelPage() {
   const { id } = useParams<{ id: string }>();
   const { data: p, isLoading, isError } = useProperty(id);
   const [active, setActive] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   if (isLoading) {
     return (
@@ -50,6 +53,19 @@ export default function ImovelPage() {
 
   const waText = `Olá! Tenho interesse no imóvel ${p.reference} — ${p.title} (${formatPrice(p.price, p.purpose)}).`;
 
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const closeLightbox = () => {
+    setLightboxOpen(false);
+  };
+
+  const navigateLightbox = (index: number) => {
+    setLightboxIndex(index);
+  };
+
   return (
     <Layout>
       <section className="pt-32 bg-[#08080a]">
@@ -70,11 +86,12 @@ export default function ImovelPage() {
             <ImageWithWatermark
               src={images[active]}
               alt={p.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover cursor-zoom-in"
               watermarkSrc="/logo.jpg"
               watermarkOpacity={0.07}
               watermarkSize={120}
               disableContextMenu
+              onClick={() => images.length > 1 && openLightbox(active)}
             />
             <span className="absolute top-5 left-5 bg-gold text-black text-xs uppercase tracking-[0.14em] px-3 py-1">
               {PURPOSE_LABELS[p.purpose]}
@@ -109,11 +126,12 @@ export default function ImovelPage() {
                   <ImageWithWatermark
                     src={src}
                     alt=""
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover cursor-zoom-in"
                     watermarkSrc="/logo.jpg"
                     watermarkOpacity={0.06}
                     watermarkSize={120}
                     disableContextMenu
+                    onClick={() => openLightbox(i)}
                   />
                 </button>
               ))}
@@ -121,6 +139,21 @@ export default function ImovelPage() {
           )}
         </div>
       </section>
+
+      {/* Lightbox */}
+      {lightboxOpen && (
+        <Lightbox
+          images={images}
+          activeIndex={lightboxIndex}
+          onClose={closeLightbox}
+          onNavigate={navigateLightbox}
+          title={p.title}
+          reference={p.reference}
+          watermarkSrc="/logo.jpg"
+          watermarkOpacity={0.08}
+          watermarkSize={150}
+        />
+      )}
 
       {/* Content */}
       <section className="py-16 bg-background">
