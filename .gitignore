@@ -1,1 +1,55 @@
-node_modules
+﻿# Dependencies
+node_modules/
+.pnp
+.pnp.*
+
+# Environment (NUNCA commita)
+.env
+.env.local
+.env.*.local
+.env.production
+admin/.env
+packages/mobile/.env
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+admin/dist/
+packages/web/dist/
+packages/desktop/dist/
+packages/mobile/dist/
+
+# Local config / IDE
+.hermes/
+.runable/
+__lint-rules/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Personal docs
+IDEA.md
+
+# Turbo
+.turbo/
+
+# Test coverage
+coverage/
+
+# Misc
+*.pem
+.vercel
