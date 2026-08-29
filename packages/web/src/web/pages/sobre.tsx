@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { motion } from "motion/react";
 import { Target, Eye, Heart, ArrowRight, UserCheck } from "lucide-react";
 import { Layout } from "../components/layout";
+import { useCorretorasSobre } from "../hooks/useCorretorasSobre";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -30,25 +31,9 @@ const VALUES = [
   },
 ];
 
-const TEAM = [
-  {
-    name: "Liliane de Lima Texeira",
-    role: "Corretora — CRECI 9821/MS",
-    img: "/images/team/liliane.png",
-  },
-  {
-    name: "Marilza Galante",
-    role: "Corretora — CRECI 6618/MS",
-    img: "/images/team/marilza.png",
-  },
-  {
-    name: "Silvana Garcia",
-    role: "Corretora — CRECI 8889/MS",
-    img: "/images/team/silvana.png",
-  },
-];
-
 export default function SobrePage() {
+  const { corretoras, loading, error } = useCorretorasSobre();
+
   return (
     <Layout>
       {/* Hero */}
@@ -150,31 +135,64 @@ export default function SobrePage() {
             <p className="text-xs uppercase tracking-luxe text-gold mb-4">Nossas corretoras</p>
             <h2 className="font-display text-4xl text-foreground">Corretoras que fazem a diferença</h2>
           </div>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {TEAM.map((m, i) => (
-              <motion.div
-                key={m.name}
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true }}
-                custom={i}
-                variants={fadeUp}
-                className="group"
-              >
-                <div className="relative aspect-square overflow-hidden mb-4 border border-border rounded-xl">
-                  <img
-                    src={m.img}
-                    alt={m.name}
-                    className={`w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ${
-                      m.name === "Marilza Galante" ? "object-[center_55%]" : ""
-                    }`}
-                  />
-                </div>
-                <h3 className="font-display text-lg text-foreground">{m.name}</h3>
-                <p className="text-xs uppercase tracking-[0.14em] text-gold mt-1">{m.role}</p>
-              </motion.div>
-            ))}
-          </div>
+
+          {loading && (
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3].map((i) => (
+                <motion.div key={i} initial="hidden" whileInView="show" viewport={{ once: true }} custom={i} variants={fadeUp} className="group">
+                  <div className="relative aspect-square overflow-hidden mb-4 border border-border rounded-xl animate-pulse">
+                    <div className="w-full h-full bg-slate-200" />
+                  </div>
+                  <div className="h-6 w-3/4 bg-slate-200 rounded animate-pulse" />
+                  <div className="h-4 w-1/2 bg-slate-200 rounded mt-1 animate-pulse" />
+                </motion.div>
+              ))}
+            </div>
+          )}
+
+          {error && (
+            <div className="text-center text-red-500 py-8">
+              Erro ao carregar corretoras: {error}
+            </div>
+          )}
+
+          {!loading && !error && (
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              {corretoras.map((m, i) => (
+                <motion.div
+                  key={m.id}
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={{ once: true }}
+                  custom={i}
+                  variants={fadeUp}
+                  className="group"
+                >
+                  <div className="relative aspect-square overflow-hidden mb-4 border border-border rounded-xl">
+                    {m.foto_url ? (
+                      <img
+                        src={m.foto_url}
+                        alt={m.nome}
+                        className={`w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ${
+                          m.nome === "Marilza Galante" ? "object-[center_55%]" : ""
+                        }`}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
+                        <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  <h3 className="font-display text-lg text-foreground">{m.nome}</h3>
+                  <p className="text-xs uppercase tracking-[0.14em] text-gold mt-1">
+                    Corretora — CRECI {m.creci?.replace(/[^0-9]/g, '') || ''}/MS
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
