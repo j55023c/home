@@ -20,6 +20,14 @@ export function Dashboard() {
   const [imovelEditando, setImovelEditando] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState<"imoveis" | "perfil">("imoveis");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(true);
+
+  useEffect(() => {
+    const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
+    checkDesktop();
+    window.addEventListener("resize", checkDesktop);
+    return () => window.removeEventListener("resize", checkDesktop);
+  }, []);
 
   useEffect(() => {
     if (!session) {
@@ -123,9 +131,6 @@ export function Dashboard() {
     );
   }
 
-  // Desktop: sidebar always open, Mobile: controlled by sidebarOpen
-  const isDesktop = typeof window !== "undefined" ? window.innerWidth >= 1024 : true;
-
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Mobile sidebar overlay */}
@@ -199,7 +204,7 @@ export function Dashboard() {
 
       {/* Main Content */}
       <main className="flex-1 lg:ml-64">
-        {/* Top Bar - Mobile header with menu button */}
+        {/* Top Bar - Desktop: user info on right; Mobile: hamburger menu */}
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-slate-200 bg-white/80 backdrop-blur-sm px-4 lg:px-8">
           {!isDesktop && (
             <button
@@ -210,18 +215,30 @@ export function Dashboard() {
               <Menu size={24} />
             </button>
           )}
-          <div className="flex-1">
-            <h1 className="text-lg font-semibold text-slate-900">
+          
+          {/* Page title - compact */}
+          <div className="flex-1 min-w-0">
+            <h1 className="text-lg font-semibold text-slate-900 truncate">
               {activeTab === "imoveis" ? "Meus Imóveis" : "Minha Foto no Site"}
             </h1>
-            <p className="text-sm text-slate-500">
-              {activeTab === "imoveis"
-                ? "Gerencie seus imóveis publicados e rascunhos"
-                : "Configure como sua foto aparece na vitrine e na página Sobre"}
-            </p>
+            {isDesktop && activeTab === "perfil" && (
+              <p className="text-xs text-slate-500 truncate">
+                Configure como sua foto aparece na vitrine e na página Sobre
+              </p>
+            )}
           </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:block text-right">
+          
+          {/* User info - Desktop: top right */}
+          <div className="hidden lg:flex items-center gap-4">
+            <div className="text-right pr-4">
+              <p className="text-sm font-medium text-slate-900">{nome}</p>
+              <p className="text-xs text-slate-400">Corretora</p>
+            </div>
+          </div>
+          
+          {/* Mobile user info - shown in sidebar */}
+          <div className="lg:hidden flex items-center gap-3">
+            <div className="text-right">
               <p className="text-sm font-medium text-slate-900">{nome}</p>
               <p className="text-xs text-slate-400">Corretora</p>
             </div>
