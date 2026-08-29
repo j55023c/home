@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 
 export interface PropertyFilters {
@@ -53,32 +53,38 @@ export interface SupabaseProperty {
   }
 }
 
-// Mapeamento de corretoras para fotos padronizadas (do /sobre)
-const CORRETORA_IMAGES: Record<string, string> = {
-  // Por nome
+// Mapeamento de fallback para corretoras sem foto no Supabase
+const CORRETORA_FALLBACK_IMAGES: Record<string, string> = {
   'Liliane de Lima Texeira': '/images/team/liliane.png',
-  'Liliane de Lima Teixeira': '/images/team/liliane.png', // variação
+  'Liliane de Lima Teixeira': '/images/team/liliane.png',
   'Marilza Galante': '/images/team/marilza.png',
   'Silvana Garcia': '/images/team/silvana.png',
-  // Por CRECI
   '9821': '/images/team/liliane.png',
   '6618': '/images/team/marilza.png',
   '8889': '/images/team/silvana.png',
 }
 
-function getCorretoraImage(corretora: { nome?: string; creci?: string | null } | null): string | null {
+function getCorretoraImage(corretora: { nome?: string; creci?: string | null; foto_url?: string | null } | null): string | null {
   if (!corretora) return null
-  // Tenta por nome exato
-  if (corretora.nome && CORRETORA_IMAGES[corretora.nome]) {
-    return CORRETORA_IMAGES[corretora.nome]
+  
+  // 1. Prioridade: foto_url do Supabase (Storage)
+  if (corretora.foto_url) {
+    return corretora.foto_url
   }
-  // Tenta por CRECI (últimos 4 dígitos)
+  
+  // 2. Fallback: mapeamento local por nome exato
+  if (corretora.nome && CORRETORA_FALLBACK_IMAGES[corretora.nome]) {
+    return CORRETORA_FALLBACK_IMAGES[corretora.nome]
+  }
+  
+  // 3. Fallback: por CRECI (últimos 4 dígitos)
   if (corretora.creci) {
     const creciNum = corretora.creci.replace(/\D/g, '').slice(-4)
-    if (CORRETORA_IMAGES[creciNum]) {
-      return CORRETORA_IMAGES[creciNum]
+    if (CORRETORA_FALLBACK_IMAGES[creciNum]) {
+      return CORRETORA_FALLBACK_IMAGES[creciNum]
     }
   }
+  
   return null
 }
 
@@ -95,7 +101,7 @@ function mapImovelToProperty(imovel: any, fotos: string[] = [], corretora: any =
     comercial: 'comercial',
   }
 
-  // Pega a foto padronizada da corretora
+  // Pega a foto da corretora (prioriza foto_url do Supabase, cai pro fallback local)
   const corretoraImage = getCorretoraImage(corretora)
 
   return {
@@ -120,7 +126,7 @@ function mapImovelToProperty(imovel: any, fotos: string[] = [], corretora: any =
     corretora: corretora ? {
       id: corretora.id,
       nome: corretora.nome,
-      foto: corretoraImage, // usa foto padronizada
+      foto: corretoraImage,
       telefone: corretora.telefone,
       email: corretora.email,
       creci: corretora.creci,
@@ -149,12 +155,12 @@ async function fetchCorretoras(corretoraIds: string[]): Promise<Record<string, a
       .from('corretoras')
       .select('*')
       .in('id', corretoraIds)
-    
+  
     if (error) {
       console.warn('[corretoras] fetch error:', error.message)
       return {}
     }
-    
+  
     const map: Record<string, any> = {}
     ;(data ?? []).forEach((c: any) => {
       map[c.id] = c
@@ -191,44 +197,66 @@ async function fetchFotos(imovelIds: string[]): Promise<Record<string, string[]>
   }
 }
 
+async function fetchPropertiesPage(
+  filters: PropertyFilters | undefined,
+  page: number
+): Promise<SupabaseProperty[]> {
+  const from = page * PAGE_SIZE
+  const to = from + PAGE_SIZE - 1
+
+  let query = supabase
+    .from('imoveis')
+    .select('*')
+    .eq('publicado', true)
+    .order('created_at', { ascending: false })
+    .range(from, to)
+
+  if (filters?.purpose) query = query.eq('finalidade', filters.purpose)
+  if (filters?.type) query = query.eq('tipo', filters.type)
+  if (filters?.city) query = query.eq('cidade', filters.city)
+  if (filters?.minPrice != null) query = query.gte('preco', filters.minPrice)
+  if (filters?.maxPrice != null) query = query.lte('preco', filters.maxPrice)
+  if (filters?.bedrooms != null) query = query.gte('quartos', filters.bedrooms)
+  if (filters?.search) {
+    const q = `%${filters.search}%`
+    query = query.or(`titulo.ilike.${q},bairro.ilike.${q},cidade.ilike.${q}`)
+  }
+
+  const { data: imoveis, error } = await query
+  if (error) throw new Error(`Erro ao buscar imóveis: ${error.message}`)
+  if (!imoveis || imoveis.length === 0) return []
+
+  const imovelIds = imoveis.map((i: any) => i.id)
+  const corretoraIds = [...new Set(imoveis.map((i: any) => i.corretora_id).filter(Boolean))]
+
+  const [fotosMap, corretorasMap] = await Promise.all([
+    fetchFotos(imovelIds),
+    fetchCorretoras(corretoraIds),
+  ])
+
+  return imoveis.map((imovel: any) =>
+    mapImovelToProperty(imovel, fotosMap[imovel.id] ?? [], corretorasMap[imovel.corretora_id] ?? null)
+  )
+}
+
+const PAGE_SIZE = 12
+
 export function useProperties(filters?: PropertyFilters) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['properties', filters],
-    queryFn: async () => {
-      let query = supabase
-        .from('imoveis')
-        .select('*')
-        .eq('publicado', true)
-        .order('created_at', { ascending: false })
-
-      if (filters?.purpose) query = query.eq('finalidade', filters.purpose)
-      if (filters?.type) query = query.eq('tipo', filters.type)
-      if (filters?.city) query = query.eq('cidade', filters.city)
-      if (filters?.minPrice != null) query = query.gte('preco', filters.minPrice)
-      if (filters?.maxPrice != null) query = query.lte('preco', filters.maxPrice)
-      if (filters?.bedrooms != null) query = query.gte('quartos', filters.bedrooms)
-      if (filters?.search) {
-        const q = `%${filters.search}%`
-        query = query.or(`titulo.ilike.${q},bairro.ilike.${q},cidade.ilike.${q}`)
-      }
-
-      const { data: imoveis, error } = await query
-      if (error) throw new Error(`Erro ao buscar imóveis: ${error.message}`)
-      if (!imoveis || imoveis.length === 0) return []
-
-      const imovelIds = imoveis.map((i: any) => i.id)
-      const corretoraIds = [...new Set(imoveis.map((i: any) => i.corretora_id).filter(Boolean))]
-
-      const [fotosMap, corretorasMap] = await Promise.all([
-        fetchFotos(imovelIds),
-        fetchCorretoras(corretoraIds),
-      ])
-
-      return imoveis.map((imovel: any) =>
-        mapImovelToProperty(imovel, fotosMap[imovel.id] ?? [], corretorasMap[imovel.corretora_id] ?? null)
-      )
+    queryFn: ({ pageParam = 0 }) => fetchPropertiesPage(filters, pageParam),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.length === PAGE_SIZE ? allPages.length : undefined
     },
+    staleTime: 30_000,
   })
+}
+
+export function useAllProperties(filters?: PropertyFilters) {
+  const { data, ...rest } = useProperties(filters)
+  const allProperties = data?.pages.flat() ?? []
+  return { data: allProperties, ...rest }
 }
 
 export function useFeaturedProperties() {

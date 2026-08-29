@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearch } from "wouter";
-import { SlidersHorizontal, X } from "lucide-react";
+import { SlidersHorizontal, X, Loader2, ChevronDown } from "lucide-react";
 import { Layout } from "../components/layout";
 import { PropertyCard } from "../components/property-card";
 import { useProperties, useCities, type PropertyFilters } from "../queries/properties";
@@ -44,7 +44,14 @@ export default function ImoveisPage() {
     search: search || undefined,
   };
 
-  const { data, isLoading } = useProperties(filters);
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+    isError,
+  } = useProperties(filters);
 
   function clearAll() {
     setPurpose("");
@@ -78,9 +85,15 @@ export default function ImoveisPage() {
           Finalidade
         </label>
         <select value={purpose} onChange={(e) => setPurpose(e.target.value)} className={selectCls}>
-          <option value="" className="bg-[#141416]">Todas</option>
-          <option value="venda" className="bg-[#141416]">Comprar</option>
-          <option value="aluguel" className="bg-[#141416]">Alugar</option>
+          <option value="" className="bg-[#141416]">
+            Todas
+          </option>
+          <option value="venda" className="bg-[#141416]">
+            Comprar
+          </option>
+          <option value="aluguel" className="bg-[#141416]">
+            Alugar
+          </option>
         </select>
       </div>
       <div>
@@ -88,12 +101,24 @@ export default function ImoveisPage() {
           Tipo
         </label>
         <select value={type} onChange={(e) => setType(e.target.value)} className={selectCls}>
-          <option value="" className="bg-[#141416]">Todos</option>
-          <option value="casa" className="bg-[#141416]">Casa</option>
-          <option value="apartamento" className="bg-[#141416]">Apartamento</option>
-          <option value="cobertura" className="bg-[#141416]">Cobertura</option>
-          <option value="terreno" className="bg-[#141416]">Terreno</option>
-          <option value="comercial" className="bg-[#141416]">Comercial</option>
+          <option value="" className="bg-[#141416]">
+            Todos
+          </option>
+          <option value="casa" className="bg-[#141416]">
+            Casa
+          </option>
+          <option value="apartamento" className="bg-[#141416]">
+            Apartamento
+          </option>
+          <option value="cobertura" className="bg-[#141416]">
+            Cobertura
+          </option>
+          <option value="terreno" className="bg-[#141416]">
+            Terreno
+          </option>
+          <option value="comercial" className="bg-[#141416]">
+            Comercial
+          </option>
         </select>
       </div>
       <div>
@@ -101,9 +126,13 @@ export default function ImoveisPage() {
           Cidade
         </label>
         <select value={city} onChange={(e) => setCity(e.target.value)} className={selectCls}>
-          <option value="" className="bg-[#141416]">Todas</option>
+          <option value="" className="bg-[#141416]">
+            Todas
+          </option>
           {cities?.map((c) => (
-            <option key={c} value={c} className="bg-[#141416]">{c}</option>
+            <option key={c} value={c} className="bg-[#141416]">
+              {c}
+            </option>
           ))}
         </select>
       </div>
@@ -112,11 +141,21 @@ export default function ImoveisPage() {
           Dormitórios (mín.)
         </label>
         <select value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} className={selectCls}>
-          <option value="" className="bg-[#141416]">Indiferente</option>
-          <option value="1" className="bg-[#141416]">1+</option>
-          <option value="2" className="bg-[#141416]">2+</option>
-          <option value="3" className="bg-[#141416]">3+</option>
-          <option value="4" className="bg-[#141416]">4+</option>
+          <option value="" className="bg-[#141416]">
+            Indiferente
+          </option>
+          <option value="1" className="bg-[#141416]">
+            1+
+          </option>
+          <option value="2" className="bg-[#141416]">
+            2+
+          </option>
+          <option value="3" className="bg-[#141416]">
+            3+
+          </option>
+          <option value="4" className="bg-[#141416]">
+            4+
+          </option>
         </select>
       </div>
       <div>
@@ -129,7 +168,9 @@ export default function ImoveisPage() {
           className={selectCls}
         >
           {PRICE_STEPS.map((p, i) => (
-            <option key={p.label} value={i} className="bg-[#141416]">{p.label}</option>
+            <option key={p.label} value={i} className="bg-[#141416]">
+              {p.label}
+            </option>
           ))}
         </select>
       </div>
@@ -143,6 +184,9 @@ export default function ImoveisPage() {
       )}
     </div>
   );
+
+  // Achata todas as páginas carregadas
+  const allProperties = useMemo(() => data?.pages.flat() ?? [], [data]);
 
   return (
     <Layout>
@@ -167,7 +211,11 @@ export default function ImoveisPage() {
           <div>
             <div className="flex items-center justify-between mb-8">
               <p className="text-sm text-muted-foreground">
-                {isLoading ? "Carregando…" : `${data?.length ?? 0} imóveis encontrados`}
+                {isLoading
+                  ? "Carregando…"
+                  : isError
+                  ? "Erro ao carregar"
+                  : `${allProperties.length} imóvel${allProperties.length !== 1 ? "s" : ""} encontrado${allProperties.length !== 1 ? "s" : ""}`}
               </p>
               <button
                 onClick={() => setShowFilters(true)}
@@ -189,12 +237,38 @@ export default function ImoveisPage() {
                   </div>
                 ))}
               </div>
-            ) : data && data.length > 0 ? (
-              <div className="grid gap-8 md:grid-cols-2">
-                {data.map((p) => (
-                  <PropertyCard key={p.id} property={p} />
-                ))}
-              </div>
+            ) : allProperties.length > 0 ? (
+              <>
+                <div className="grid gap-8 md:grid-cols-2">
+                  {allProperties.map((p) => (
+                    <PropertyCard key={p.id} property={p} />
+                  ))}
+                </div>
+
+                {hasNextPage && (
+                  <div className="mt-12 text-center">
+                    <button
+                      onClick={() => fetchNextPage()}
+                      disabled={isFetchingNextPage}
+                      className="inline-flex items-center justify-center gap-2 w-full max-w-xs mx-auto border border-gold text-gold px-8 py-3.5 text-sm uppercase tracking-[0.14em] hover:bg-gold hover:text-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isFetchingNextPage ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin" />
+                          Carregando...
+                        </>
+                      ) : (
+                        <>
+                          Carregar mais <ChevronDown size={16} />
+                        </>
+                      )}
+                    </button>
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      Mostrando {allProperties.length} de {allProperties.length + (hasNextPage ? "+" : "")} imóveis
+                    </p>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="border border-border bg-card p-16 text-center">
                 <p className="font-display text-2xl text-foreground mb-3">Nenhum imóvel encontrado</p>
