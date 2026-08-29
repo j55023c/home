@@ -129,7 +129,7 @@ function mapImovelToProperty(imovel: any, fotos: string[] = [], corretora: any =
       id: corretora.id,
       nome: corretora.nome,
       foto: corretoraImage,
-      telefone: corretora.telefone,
+      telefone: corretora.whatsapp, // usa whatsapp como telefone
       email: corretora.email,
       creci: corretora.creci,
     } : null,
@@ -156,7 +156,7 @@ async function fetchCorretoras(corretoraIds: string[]): Promise<Record<string, a
     console.log('[Vitrine] 🔍 Buscando corretoras IDs:', corretoraIds)
     const { data, error } = await supabase
       .from('corretoras')
-      .select('id, nome, telefone, whatsapp, creci, foto_url')
+      .select('id, nome, whatsapp, creci, foto_url') // REMOVIDO telefone (não existe)
       .in('id', corretoraIds)
   
     if (error) {
@@ -255,7 +255,7 @@ export function useProperties(filters?: PropertyFilters) {
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.length === PAGE_SIZE ? allPages.length : undefined
     },
-    staleTime: 5_000, // Reduzido para 5s para refetch rápido após upload
+    staleTime: 5_000,
   })
 }
 
