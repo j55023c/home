@@ -48,6 +48,7 @@ const CAMPOS_VAZIOS = {
   condominio: "",
   taxas: "",
   descricao: "",
+  observacoes: "",
 };
 
 export function ImovelForm({ corretoraId, imovelExistente, onFechar, onSalvo }: Props) {
@@ -72,6 +73,7 @@ export function ImovelForm({ corretoraId, imovelExistente, onFechar, onSalvo }: 
           condominio: imovelExistente.condominio?.toString() ?? "",
           taxas: imovelExistente.taxas?.toString() ?? "",
           descricao: imovelExistente.descricao ?? "",
+          observacoes: imovelExistente.observacoes ?? "",
         }
       : CAMPOS_VAZIOS
   );
@@ -134,6 +136,7 @@ export function ImovelForm({ corretoraId, imovelExistente, onFechar, onSalvo }: 
       taxas: campos.taxas ? Number(campos.taxas) : null,
       caracteristicas,
       descricao: campos.descricao || null,
+      observacoes: campos.observacoes || null,
       updated_at: new Date().toISOString(),
     };
 
@@ -380,7 +383,34 @@ export function ImovelForm({ corretoraId, imovelExistente, onFechar, onSalvo }: 
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">Descrição</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Descrição (pública)</label>
+            <textarea
+              value={campos.descricao}
+              onChange={(e) => atualizarCampo("descricao", e.target.value)}
+              rows={4}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            />
+          </div>
+
+          {/* Observações internas - não vai pro site */}
+          <div>
+            <label className="mb-1 block text-sm font-medium text-slate-700">
+              Observações internas <span className="text-xs text-slate-400">(não aparece no site)</span>
+            </label>
+            <textarea
+              value={campos.observacoes}
+              onChange={(e) => atualizarCampo("observacoes", e.target.value)}
+              rows={3}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm bg-slate-50"
+              placeholder="Ex: Proprietário: João Silva - (67) 99999-9999 | Chave com vizinho | Documentação OK"
+            />
+            <p className="mt-1 text-xs text-slate-400">
+              Use para anotar nome/telefone do proprietário, local da chave, status da documentação, etc. Esta informação é apenas para uso interno da imobiliária.
+            </p>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Descrição (pública)</label>
             <textarea
               value={campos.descricao}
               onChange={(e) => atualizarCampo("descricao", e.target.value)}

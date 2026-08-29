@@ -123,46 +123,46 @@ export function Dashboard() {
     );
   }
 
-  const sidebarBaseClass = "fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0";
-  const sidebarClassName = sidebarBaseClass + " " + (sidebarOpen ? "translate-x-0" : "-translate-x-full");
-
-  const imoveisTabClassName = "w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors " +
-    (activeTab === "imoveis" ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900");
-  
-  const perfilTabClassName = "w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors " +
-    (activeTab === "perfil" ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900");
+  // Desktop: sidebar always open, Mobile: controlled by sidebarOpen
+  const isDesktop = typeof window !== "undefined" ? window.innerWidth >= 1024 : true;
 
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
+      {!isDesktop && sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/50"
           onClick={() => setSidebarOpen(false)}
           aria-hidden="true"
         />
       )}
 
-      {/* Sidebar */}
-      <aside className={sidebarClassName}>
+      {/* Sidebar - Desktop: always visible (lg:translate-x-0), Mobile: slide in/out */}
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${isDesktop ? "translate-x-0" : sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4 lg:justify-center">
           <h1 className="font-display text-xl text-slate-900">Home Admin</h1>
-          <button
-            className="lg:hidden p-2 rounded-lg hover:bg-slate-100"
-            onClick={() => setSidebarOpen(false)}
-            aria-label="Fechar menu"
-          >
-            <X size={24} />
-          </button>
+          {!isDesktop && (
+            <button
+              className="lg:hidden p-2 rounded-lg hover:bg-slate-100"
+              onClick={() => setSidebarOpen(false)}
+              aria-label="Fechar menu"
+            >
+              <X size={24} />
+            </button>
+          )}
         </div>
 
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           <button
             onClick={() => {
               setActiveTab("imoveis");
-              setSidebarOpen(false);
+              if (!isDesktop) setSidebarOpen(false);
             }}
-            className={imoveisTabClassName}
+            className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+              activeTab === "imoveis"
+                ? "bg-slate-900 text-white"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            }`}
           >
             <LayoutDashboard size={20} />
             Meus Imóveis
@@ -170,9 +170,13 @@ export function Dashboard() {
           <button
             onClick={() => {
               setActiveTab("perfil");
-              setSidebarOpen(false);
+              if (!isDesktop) setSidebarOpen(false);
             }}
-            className={perfilTabClassName}
+            className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+              activeTab === "perfil"
+                ? "bg-slate-900 text-white"
+                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            }`}
           >
             <User size={20} />
             Minha Foto no Site
@@ -183,7 +187,7 @@ export function Dashboard() {
           <button
             onClick={() => {
               handleLogout();
-              setSidebarOpen(false);
+              if (!isDesktop) setSidebarOpen(false);
             }}
             className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
           >
@@ -197,13 +201,15 @@ export function Dashboard() {
       <main className="flex-1 lg:ml-64">
         {/* Top Bar - Mobile header with menu button */}
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-slate-200 bg-white/80 backdrop-blur-sm px-4 lg:px-8">
-          <button
-            className="lg:hidden p-2 rounded-lg hover:bg-slate-100"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Abrir menu"
-          >
-            <Menu size={24} />
-          </button>
+          {!isDesktop && (
+            <button
+              className="lg:hidden p-2 rounded-lg hover:bg-slate-100"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Abrir menu"
+            >
+              <Menu size={24} />
+            </button>
+          )}
           <div className="flex-1">
             <h1 className="text-lg font-semibold text-slate-900">
               {activeTab === "imoveis" ? "Meus Imóveis" : "Minha Foto no Site"}

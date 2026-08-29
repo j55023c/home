@@ -230,12 +230,20 @@ export default function ImovelPage() {
                 <div className="border-t border-border pt-6 mb-6">
                   <p className="font-display text-lg text-foreground mb-4">Corretora responsável</p>
                   <div className="flex items-center gap-4">
+                    {/* Foto da corretora - usa p.corretora.foto (que vem do Supabase via foto_url) */}
                     {p.corretora.foto && (
                       <img
                         src={p.corretora.foto}
                         alt={p.corretora.nome}
                         className="w-16 h-16 rounded-full object-cover border border-border"
                       />
+                    )}
+                    {(!p.corretora.foto) && (
+                      <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center border border-border">
+                        <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-foreground truncate">{p.corretora.nome}</p>

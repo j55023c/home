@@ -21,6 +21,7 @@ export type Imovel = {
   taxas: number | null;
   caracteristicas: string[];
   descricao: string | null;
+  observacoes: string | null;
   corretora_id: string;
   destaque: boolean;
   status: StatusImovel;
