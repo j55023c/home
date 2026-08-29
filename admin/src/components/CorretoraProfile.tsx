@@ -36,23 +36,36 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
   const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
   const RECOMMENDED_DIMENSIONS = "400x400px (quadrada)";
 
+  const log = (msg: string, data?: any) => {
+    const timestamp = new Date().toISOString();
+    console.log(`[CorretoraProfile][${timestamp}] ${msg}`, data ?? "");
+  };
+
   // Buscar corretora logada
   const buscarCorretora = async () => {
     if (!session) return;
     try {
+      log("Buscando corretora para auth_user_id:", session.user.id);
       const { data, error } = await supabase
         .from("corretoras")
         .select("id, nome, whatsapp, creci, foto_url")
         .eq("auth_user_id", session.user.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        log("Erro ao buscar corretora:", error);
+        throw error;
+      }
       if (data) {
+        log("Corretora encontrada:", data);
         // Se não tem foto_url no Supabase, tenta usar a do "Sobre" como preview inicial
         const sobreFoto = data.nome && SOBRE_IMAGES[data.nome] ? SOBRE_IMAGES[data.nome] : null;
         setCorretora({ ...data, foto_url: data.foto_url || sobreFoto });
+      } else {
+        log("Nenhuma corretora encontrada para este usuário");
       }
     } catch (e: any) {
+      log("Exceção ao buscar corretora:", e);
       setErro("Erro ao carregar corretora: " + e.message);
     } finally {
       setLoading(false);
@@ -89,6 +102,7 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
     setUploading(true);
     setErro(null);
     setSucesso(null);
+    log("Iniciando upload:", { name: file.name, size: file.size, type: file.type });
 
     try {
       if (!corretora) throw new Error("Corretora não carregada");
@@ -96,33 +110,46 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
       const fileExt = file.name.split(".").pop();
       const fileName = `${corretora.id}-${Date.now()}.${fileExt}`;
       const filePath = `${corretora.id}/${fileName}`;
+      log("Upload path:", filePath);
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError, data: uploadData } = await supabase.storage
         .from("corretoras-fotos")
         .upload(filePath, file, { cacheControl: "3600", upsert: true });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        log("Erro no upload storage:", uploadError);
+        throw uploadError;
+      }
+      log("Upload OK:", uploadData);
 
-      const { data } = supabase.storage
+      const { data: publicUrlData } = supabase.storage
         .from("corretoras-fotos")
         .getPublicUrl(filePath);
 
-      const fotoUrl = data.publicUrl;
+      const fotoUrl = publicUrlData.publicUrl;
+      log("Public URL gerada:", fotoUrl);
 
       // Atualiza coluna na tabela
-      const { error: updateError } = await supabase
+      log("Atualizando tabela corretoras com foto_url:", fotoUrl);
+      const { error: updateError, data: updateData } = await supabase
         .from("corretoras")
         .update({ foto_url: fotoUrl })
-        .eq("id", corretora.id);
+        .eq("id", corretora.id)
+        .select();
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        log("Erro ao atualizar tabela:", updateError);
+        throw updateError;
+      }
+      log("Tabela atualizada com sucesso:", updateData);
 
       setCorretora((prev) => (prev ? { ...prev, foto_url: fotoUrl } : null));
       setSucesso("Foto atualizada com sucesso!");
       setPreview(fotoUrl);
       onAtualizado?.();
     } catch (e: any) {
-      setErro("Erro no upload: " + e.message);
+      log("ERRO GERAL:", e);
+      setErro("Erro no upload: " + (e.message ?? JSON.stringify(e)));
       setPreview(null);
     } finally {
       setUploading(false);
@@ -136,14 +163,20 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
     setUploading(true);
     setErro(null);
     setSucesso(null);
+    log("Removendo foto da corretora:", corretora.id);
 
     try {
-      const { error } = await supabase
+      const { error, data } = await supabase
         .from("corretoras")
         .update({ foto_url: null })
-        .eq("id", corretora.id);
+        .eq("id", corretora.id)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        log("Erro ao remover:", error);
+        throw error;
+      }
+      log("Foto removida da tabela:", data);
 
       // Se remover, volta pro fallback do "Sobre" se tiver
       const sobreFoto = corretora.nome && SOBRE_IMAGES[corretora.nome] ? SOBRE_IMAGES[corretora.nome] : null;
@@ -152,6 +185,7 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
       setPreview(null);
       onAtualizado?.();
     } catch (e: any) {
+      log("Erro ao remover:", e);
       setErro("Erro ao remover: " + e.message);
     } finally {
       setUploading(false);

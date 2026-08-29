@@ -69,11 +69,13 @@ function getCorretoraImage(corretora: { nome?: string; creci?: string | null; fo
   
   // 1. Prioridade: foto_url do Supabase (Storage)
   if (corretora.foto_url) {
+    console.log('[Vitrine] Usando foto_url do Supabase:', corretora.foto_url)
     return corretora.foto_url
   }
   
   // 2. Fallback: mapeamento local por nome exato
   if (corretora.nome && CORRETORA_FALLBACK_IMAGES[corretora.nome]) {
+    console.log('[Vitrine] Usando fallback local por nome:', corretora.nome, '->', CORRETORA_FALLBACK_IMAGES[corretora.nome])
     return CORRETORA_FALLBACK_IMAGES[corretora.nome]
   }
   
@@ -81,10 +83,12 @@ function getCorretoraImage(corretora: { nome?: string; creci?: string | null; fo
   if (corretora.creci) {
     const creciNum = corretora.creci.replace(/\D/g, '').slice(-4)
     if (CORRETORA_FALLBACK_IMAGES[creciNum]) {
+      console.log('[Vitrine] Usando fallback local por CRECI:', creciNum, '->', CORRETORA_FALLBACK_IMAGES[creciNum])
       return CORRETORA_FALLBACK_IMAGES[creciNum]
     }
   }
   
+  console.log('[Vitrine] Nenhuma foto encontrada para corretora:', corretora)
   return null
 }
 
@@ -151,13 +155,14 @@ async function fetchCorretoras(corretoraIds: string[]): Promise<Record<string, a
   if (!corretoraIds.length) return {}
   
   try {
+    console.log('[Vitrine] Buscando corretoras:', corretoraIds)
     const { data, error } = await supabase
       .from('corretoras')
       .select('id, nome, telefone, whatsapp, creci, foto_url')
       .in('id', corretoraIds)
   
     if (error) {
-      console.warn('[corretoras] fetch error:', error.message)
+      console.warn('[Vitrine] Erro ao buscar corretoras:', error.message)
       return {}
     }
   
@@ -165,10 +170,10 @@ async function fetchCorretoras(corretoraIds: string[]): Promise<Record<string, a
     ;(data ?? []).forEach((c: any) => {
       map[c.id] = c
     })
-    console.log('[corretoras] success with select id,nome,telefone,whatsapp,creci,foto_url')
+    console.log('[Vitrine] Corretoras carregadas:', Object.keys(map).length, '| Dados:', data)
     return map
   } catch (e) {
-    console.warn('[corretoras] fetch exception:', e)
+    console.warn('[Vitrine] Exceção ao buscar corretoras:', e)
     return {}
   }
 }
@@ -182,7 +187,7 @@ async function fetchFotos(imovelIds: string[]): Promise<Record<string, string[]>
       .in('imovel_id', imovelIds)
       .order('ordem', { ascending: true })
     if (error) {
-      console.warn('[fotos] fetch error:', error.message)
+      console.warn('[Vitrine] Erro ao buscar fotos:', error.message)
       return {}
     }
     const map: Record<string, string[]> = {}
@@ -192,7 +197,7 @@ async function fetchFotos(imovelIds: string[]): Promise<Record<string, string[]>
     })
     return map
   } catch (e) {
-    console.warn('[fotos] fetch exception:', e)
+    console.warn('[Vitrine] Exceção ao buscar fotos:', e)
     return {}
   }
 }
