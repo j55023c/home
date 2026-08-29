@@ -142,13 +142,19 @@ export function Dashboard() {
         />
       )}
 
-      {/* Sidebar - Desktop: always visible (lg:translate-x-0), Mobile: slide in/out */}
+      {/* Sidebar - Desktop: always visible, Mobile: slide in/out */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${isDesktop ? "translate-x-0" : sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        {/* Sidebar Header */}
         <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4 lg:justify-center">
-          <h1 className="font-display text-xl text-slate-900">Home Admin</h1>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gold flex items-center justify-center">
+              <LayoutDashboard size={18} className="text-black" />
+            </div>
+            <h1 className="font-display text-xl font-bold text-slate-900">Home Admin</h1>
+          </div>
           {!isDesktop && (
             <button
-              className="lg:hidden p-2 rounded-lg hover:bg-slate-100"
+              className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
               onClick={() => setSidebarOpen(false)}
               aria-label="Fechar menu"
             >
@@ -157,44 +163,80 @@ export function Dashboard() {
           )}
         </div>
 
+        {/* Sidebar Navigation */}
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           <button
             onClick={() => {
               setActiveTab("imoveis");
               if (!isDesktop) setSidebarOpen(false);
             }}
-            className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+            className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
               activeTab === "imoveis"
-                ? "bg-slate-900 text-white"
-                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                ? "bg-slate-900 text-white shadow-sm"
+                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
             }`}
           >
-            <LayoutDashboard size={20} />
-            Meus Imóveis
+            <div className={`p-2 rounded-lg ${activeTab === "imoveis" ? "bg-white/20" : "bg-slate-100"}`}>
+              <LayoutDashboard size={20} className={activeTab === "imoveis" ? "text-white" : "text-slate-600"} />
+            </div>
+            <span>Meus Imóveis</span>
           </button>
+          
           <button
             onClick={() => {
               setActiveTab("perfil");
               if (!isDesktop) setSidebarOpen(false);
             }}
-            className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+            className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
               activeTab === "perfil"
-                ? "bg-slate-900 text-white"
-                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                ? "bg-slate-900 text-white shadow-sm"
+                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
             }`}
           >
-            <User size={20} />
-            Minha Foto no Site
+            <div className={`p-2 rounded-lg ${activeTab === "perfil" ? "bg-white/20" : "bg-slate-100"}`}>
+              <User size={20} className={activeTab === "perfil" ? "text-white" : "text-slate-600"} />
+            </div>
+            <span>Minha Foto no Site</span>
           </button>
         </nav>
 
-        <div className="p-4 border-t border-slate-200">
+        {/* Sidebar Footer - User info mobile */}
+        <div className="p-4 border-t border-slate-200 lg:hidden">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
+            <div className="w-10 h-10 rounded-full bg-gold flex items-center justify-center">
+              <User size={20} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-slate-900 truncate">{nome}</p>
+              <p className="text-xs text-slate-500">Corretora</p>
+            </div>
+          </div>
           <button
             onClick={() => {
               handleLogout();
-              if (!isDesktop) setSidebarOpen(false);
+              setSidebarOpen(false);
             }}
-            className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+            className="mt-3 w-full flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+          >
+            <LogOut size={20} />
+            Sair
+          </button>
+        </div>
+
+        {/* Desktop user info - bottom of sidebar */}
+        <div className="hidden lg:block p-4 border-t border-slate-200">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
+            <div className="w-10 h-10 rounded-full bg-gold flex items-center justify-center">
+              <User size={20} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-slate-900 truncate">{nome}</p>
+              <p className="text-xs text-slate-500">Corretora</p>
+            </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="mt-3 w-full flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
           >
             <LogOut size={20} />
             Sair
@@ -203,95 +245,117 @@ export function Dashboard() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-64">
-        {/* Top Bar - Desktop: user info on right; Mobile: hamburger menu */}
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-slate-200 bg-white/80 backdrop-blur-sm px-4 lg:px-8">
-          {!isDesktop && (
-            <button
-              className="lg:hidden p-2 rounded-lg hover:bg-slate-100"
-              onClick={() => setSidebarOpen(true)}
-              aria-label="Abrir menu"
-            >
-              <Menu size={24} />
-            </button>
-          )}
-          
-          {/* Page title - compact */}
-          <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-semibold text-slate-900 truncate">
-              {activeTab === "imoveis" ? "Meus Imóveis" : "Minha Foto no Site"}
-            </h1>
-            {isDesktop && activeTab === "perfil" && (
-              <p className="text-xs text-slate-500 truncate">
-                Configure como sua foto aparece na vitrine e na página Sobre
-              </p>
+      <main className="flex-1 lg:ml-64 min-h-screen">
+        {/* Top Bar */}
+        <header className="sticky top-0 z-30 h-16 bg-white/95 backdrop-blur-sm border-b border-slate-200 px-6 lg:px-8">
+          <div className="flex h-full items-center justify-between gap-4">
+            {/* Mobile menu button */}
+            {!isDesktop && (
+              <button
+                className="lg:hidden p-2 rounded-xl hover:bg-slate-100 transition-colors"
+                onClick={() => setSidebarOpen(true)}
+                aria-label="Abrir menu"
+              >
+                <Menu size={24} className="text-slate-600" />
+              </button>
             )}
-          </div>
-          
-          {/* User info - Desktop: top right */}
-          <div className="hidden lg:flex items-center gap-4">
-            <div className="text-right pr-4">
-              <p className="text-sm font-medium text-slate-900">{nome}</p>
-              <p className="text-xs text-slate-400">Corretora</p>
+
+            {/* Page Title */}
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg font-semibold text-slate-900 truncate">
+                {activeTab === "imoveis" ? "Meus Imóveis" : "Minha Foto no Site"}
+              </h1>
+              {isDesktop && activeTab === "perfil" && (
+                <p className="text-xs text-slate-500 truncate mt-0.5">
+                  Configure como sua foto aparece na vitrine e na página Sobre
+                </p>
+              )}
             </div>
-          </div>
-          
-          {/* Mobile user info - shown in sidebar */}
-          <div className="lg:hidden flex items-center gap-3">
-            <div className="text-right">
-              <p className="text-sm font-medium text-slate-900">{nome}</p>
-              <p className="text-xs text-slate-400">Corretora</p>
+
+            {/* Desktop: User profile + logout */}
+            <div className="hidden lg:flex items-center gap-4">
+              {/* User info */}
+              <div className="flex items-center gap-3 pr-4">
+                <div className="w-9 h-9 rounded-full bg-gold flex items-center justify-center flex-shrink-0">
+                  <User size={18} className="text-white" />
+                </div>
+                <div className="text-right hidden sm:block">
+                  <p className="text-sm font-medium text-slate-900 truncate max-w-xs">{nome}</p>
+                  <p className="text-xs text-slate-500">Corretora</p>
+                </div>
+              </div>
+              
+              {/* Logout button */}
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <LogOut size={18} />
+                <span className="hidden sm:inline">Sair</span>
+              </button>
+            </div>
+
+            {/* Mobile: user avatar only in header */}
+            <div className="lg:hidden flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-gold flex items-center justify-center">
+                <User size={18} className="text-white" />
+              </div>
             </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <div className="p-4 lg:p-8">
+        <div className="p-6 lg:p-8">
           {activeTab === "imoveis" && (
             <>
-              {/* Actions */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+              {/* Page Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
                 <div>
-                  <h2 className="text-xl font-semibold text-slate-900">Seus imóveis</h2>
-                  <p className="text-sm text-slate-500">
+                  <h2 className="text-2xl font-bold text-slate-900">Meus Imóveis</h2>
+                  <p className="text-slate-500 mt-1">
                     {imoveis.length} imóvel{imoveis.length !== 1 ? "is" : ""} cadastrado{imoveis.length !== 1 ? "s" : ""}
                   </p>
                 </div>
                 <button
                   onClick={handleNovoImovel}
-                  className="flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 transition-colors w-full sm:w-auto"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 transition-all duration-200 shadow-sm hover:shadow-md w-full sm:w-auto"
                 >
                   <Plus size={18} />
-                  Novo imóvel
+                  <span>Novo imóvel</span>
                 </button>
               </div>
 
-              {/* Lista de imóveis */}
+              {/* Properties Grid */}
               {loadingImoveis ? (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {[1, 2, 3].map((i) => (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="animate-pulse">
                       <div className="aspect-[4/3] rounded-xl bg-slate-200" />
-                      <div className="mt-3 h-4 w-3/4 bg-slate-200 rounded" />
-                      <div className="mt-2 h-4 w-1/2 bg-slate-200 rounded" />
-                      <div className="mt-2 h-4 w-1/3 bg-slate-200 rounded" />
+                      <div className="mt-3 space-y-2">
+                        <div className="h-4 w-3/4 bg-slate-200 rounded" />
+                        <div className="h-4 w-1/2 bg-slate-200 rounded" />
+                        <div className="h-4 w-1/3 bg-slate-200 rounded" />
+                      </div>
                     </div>
                   ))}
                 </div>
               ) : imoveis.length === 0 ? (
-                <div className="text-center py-16">
-                  <Home className="mx-auto h-16 w-16 text-slate-300 mb-4" />
-                  <h3 className="text-lg font-medium text-slate-900 mb-2">Nenhum imóvel cadastrado</h3>
-                  <p className="text-slate-500 mb-6">Comece criando seu primeiro imóvel.</p>
+                <div className="text-center py-20">
+                  <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-6">
+                    <Home className="w-10 h-10 text-slate-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-slate-900 mb-2">Nenhum imóvel cadastrado</h3>
+                  <p className="text-slate-500 mb-8 max-w-md mx-auto">Comece criando seu primeiro imóvel para aparecer aqui.</p>
                   <button
                     onClick={handleNovoImovel}
-                    className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-6 py-3 text-white hover:bg-slate-800"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-all"
                   >
-                    <Plus size={20} /> Criar primeiro imóvel
+                    <Plus size={20} />
+                    Criar primeiro imóvel
                   </button>
                 </div>
               ) : (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {imoveis.map((imovel) => (
                     <ImovelCard
                       key={imovel.id}
@@ -307,7 +371,7 @@ export function Dashboard() {
           )}
 
           {activeTab === "perfil" && (
-            <div className="max-w-3xl mx-auto">
+            <div className="max-w-2xl mx-auto">
               <CorretoraProfile onAtualizado={() => {}} />
             </div>
           )}
