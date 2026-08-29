@@ -30,24 +30,16 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState<string | null>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<string[]>([]);
 
   // Tamanhos permitidos e tipos
   const MAX_SIZE_MB = 2;
   const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
   const RECOMMENDED_DIMENSIONS = "400x400px (quadrada)";
 
-  const addDebug = (msg: string) => {
-    const timestamp = new Date().toLocaleTimeString();
-    setDebugInfo(prev => [...prev.slice(-9), `[${timestamp}] ${msg}`]);
-    console.log(`[CorretoraProfile] ${msg}`);
-  };
-
   // Buscar corretora logada
   const buscarCorretora = async () => {
     if (!session) return;
     try {
-      addDebug("Buscando corretora...");
       const { data, error } = await supabase
         .from("corretoras")
         .select("id, nome, whatsapp, creci, foto_url")
@@ -56,14 +48,11 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
 
       if (error) throw error;
       if (data) {
-        addDebug(`Corretora encontrada: ${data.nome}, foto_url: ${data.foto_url || 'null'}`);
         // Se não tem foto_url no Supabase, tenta usar a do "Sobre" como preview inicial
         const sobreFoto = data.nome && SOBRE_IMAGES[data.nome] ? SOBRE_IMAGES[data.nome] : null;
         setCorretora({ ...data, foto_url: data.foto_url || sobreFoto });
-        addDebug(`Foto final: ${data.foto_url || sobreFoto || 'null'}`);
       }
     } catch (e: any) {
-      addDebug(`Erro ao buscar: ${e.message}`);
       setErro("Erro ao carregar corretora: " + e.message);
     } finally {
       setLoading(false);
@@ -100,7 +89,6 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
     setUploading(true);
     setErro(null);
     setSucesso(null);
-    addDebug(`Iniciando upload: ${file.name} (${(file.size/1024).toFixed(1)}KB)`);
 
     try {
       if (!corretora) throw new Error("Corretora não carregada");
@@ -108,46 +96,33 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
       const fileExt = file.name.split(".").pop();
       const fileName = `${corretora.id}-${Date.now()}.${fileExt}`;
       const filePath = `${corretora.id}/${fileName}`;
-      addDebug(`Upload para: ${filePath}`);
 
-      const { error: uploadError, data: uploadData } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from("corretoras-fotos")
         .upload(filePath, file, { cacheControl: "3600", upsert: true });
 
-      if (uploadError) {
-        addDebug(`Erro upload: ${uploadError.message}`);
-        throw uploadError;
-      }
-      addDebug(`Upload OK: ${JSON.stringify(uploadData)}`);
+      if (uploadError) throw uploadError;
 
-      const { data: publicUrlData } = supabase.storage
+      const { data } = supabase.storage
         .from("corretoras-fotos")
         .getPublicUrl(filePath);
 
-      const fotoUrl = publicUrlData.publicUrl;
-      addDebug(`Public URL: ${fotoUrl}`);
+      const fotoUrl = data.publicUrl;
 
       // Atualiza coluna na tabela
-      addDebug(`Atualizando tabela corretoras...`);
       const { error: updateError } = await supabase
         .from("corretoras")
         .update({ foto_url: fotoUrl })
         .eq("id", corretora.id);
 
-      if (updateError) {
-        addDebug(`Erro update tabela: ${updateError.message}`);
-        throw updateError;
-      }
-      addDebug(`Tabela atualizada com sucesso`);
+      if (updateError) throw updateError;
 
       setCorretora((prev) => (prev ? { ...prev, foto_url: fotoUrl } : null));
       setSucesso("Foto atualizada com sucesso!");
       setPreview(fotoUrl);
       onAtualizado?.();
     } catch (e: any) {
-      const msg = e.message || "Erro desconhecido";
-      addDebug(`ERRO: ${msg}`);
-      setErro(`Erro no upload: ${msg}`);
+      setErro("Erro no upload: " + e.message);
       setPreview(null);
     } finally {
       setUploading(false);
@@ -161,7 +136,6 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
     setUploading(true);
     setErro(null);
     setSucesso(null);
-    addDebug("Removendo foto...");
 
     try {
       const { error } = await supabase
@@ -176,10 +150,8 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
       setCorretora((prev) => (prev ? { ...prev, foto_url: sobreFoto } : null));
       setSucesso("Foto removida. Usando foto padrão do Sobre.");
       setPreview(null);
-      addDebug(`Foto removida, fallback: ${sobreFoto || 'none'}`);
       onAtualizado?.();
     } catch (e: any) {
-      addDebug(`Erro remover: ${e.message}`);
       setErro("Erro ao remover: " + e.message);
     } finally {
       setUploading(false);
@@ -274,16 +246,6 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
           </p>
         </div>
       </div>
-
-      {/* Debug Panel */}
-      <details className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-        <summary className="cursor-pointer font-mono text-xs text-slate-600">Debug Logs (clique para expandir)</summary>
-        <div className="mt-2 font-mono text-xs text-slate-700 max-h-40 overflow-auto">
-          {debugInfo.map((log, i) => (
-            <div key={i} className="font-mono text-[10px]">{log}</div>
-          ))}
-        </div>
-      </details>
 
       {/* Alertas */}
       {erro && (
