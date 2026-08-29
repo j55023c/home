@@ -28,7 +28,7 @@ export function Dashboard() {
 
     supabase
       .from("corretoras")
-      .select("id, nome, whatsapp, email, creci, foto_url")
+      .select("id, nome, whatsapp, creci, foto_url")
       .eq("auth_user_id", session.user.id)
       .single()
       .then(({ data, error }) => {

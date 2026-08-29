@@ -26,14 +26,14 @@ export function useCorretoraCompleta() {
 
     supabase
       .from("corretoras")
-      .select("id, nome, whatsapp, email, creci, foto_url, auth_user_id")
+      .select("id, nome, whatsapp, creci, foto_url, auth_user_id")
       .eq("auth_user_id", session.user.id)
       .single()
       .then(({ data, error }) => {
         if (error) {
           setError("Erro ao buscar corretora: " + error.message);
         } else if (data) {
-          setCorretora(data);
+          setCorretora({ ...data, email: null });
         }
         setLoading(false);
       });

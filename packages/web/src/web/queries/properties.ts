@@ -153,7 +153,7 @@ async function fetchCorretoras(corretoraIds: string[]): Promise<Record<string, a
   try {
     const { data, error } = await supabase
       .from('corretoras')
-      .select('*')
+      .select('id, nome, telefone, whatsapp, creci, foto_url')
       .in('id', corretoraIds)
   
     if (error) {
@@ -165,7 +165,7 @@ async function fetchCorretoras(corretoraIds: string[]): Promise<Record<string, a
     ;(data ?? []).forEach((c: any) => {
       map[c.id] = c
     })
-    console.log('[corretoras] success with select *')
+    console.log('[corretoras] success with select id,nome,telefone,whatsapp,creci,foto_url')
     return map
   } catch (e) {
     console.warn('[corretoras] fetch exception:', e)
