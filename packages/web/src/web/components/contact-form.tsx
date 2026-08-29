@@ -4,7 +4,7 @@ import { useCreateLead } from "../queries/properties";
 
 interface Props {
   compact?: boolean;
-  propertyId?: number;
+  propertyId?: string;
   defaultMessage?: string;
 }
 
@@ -21,7 +21,15 @@ export function ContactForm({ compact = false, propertyId, defaultMessage = "" }
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!name || !email) return;
-    createLead.mutate({ name, email, phone, message, propertyId });
+    
+    // Mapear campos do formulário para a API
+    createLead.mutate({
+      nome: name,
+      telefone: phone,
+      email: email,
+      mensagem: message,
+      imovel_id: propertyId,
+    });
   }
 
   if (createLead.isSuccess) {
