@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
 import { Camera, X, Image as ImageIcon, Eye, Upload } from "lucide-react";
@@ -7,13 +7,20 @@ interface CorretoraProfileProps {
   onAtualizado?: () => void;
 }
 
+// Mapeamento das fotos do "Sobre" (fallback inicial)
+const SOBRE_IMAGES: Record<string, string> = {
+  "Liliane de Lima Texeira": "/images/team/liliane.png",
+  "Liliane de Lima Teixeira": "/images/team/liliane.png",
+  "Marilza Galante": "/images/team/marilza.png",
+  "Silvana Garcia": "/images/team/silvana.png",
+};
+
 export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
   const { session } = useAuth();
   const [corretora, setCorretora] = useState<{
     id: string;
     nome: string;
     whatsapp: string | null;
-    email: string | null;
     creci: string | null;
     foto_url: string | null;
   } | null>(null);
@@ -35,18 +42,26 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
     try {
       const { data, error } = await supabase
         .from("corretoras")
-        .select("id, nome, whatsapp, email, creci, foto_url")
+        .select("id, nome, whatsapp, creci, foto_url")
         .eq("auth_user_id", session.user.id)
         .single();
 
       if (error) throw error;
-      if (data) setCorretora(data);
+      if (data) {
+        // Se não tem foto_url no Supabase, tenta usar a do "Sobre" como preview inicial
+        const sobreFoto = data.nome && SOBRE_IMAGES[data.nome] ? SOBRE_IMAGES[data.nome] : null;
+        setCorretora({ ...data, foto_url: data.foto_url || sobreFoto });
+      }
     } catch (e: any) {
       setErro("Erro ao carregar corretora: " + e.message);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    buscarCorretora();
+  }, [session]);
 
   // Upload da foto
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,8 +147,10 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
 
       if (error) throw error;
 
-      setCorretora((prev) => (prev ? { ...prev, foto_url: null } : null));
-      setSucesso("Foto removida.");
+      // Se remover, volta pro fallback do "Sobre" se tiver
+      const sobreFoto = corretora.nome && SOBRE_IMAGES[corretora.nome] ? SOBRE_IMAGES[corretora.nome] : null;
+      setCorretora((prev) => (prev ? { ...prev, foto_url: sobreFoto } : null));
+      setSucesso("Foto removida. Usando foto padrão do Sobre.");
       setPreview(null);
       onAtualizado?.();
     } catch (e: any) {
