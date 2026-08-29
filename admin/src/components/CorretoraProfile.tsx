@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
-import { Camera, X, Image as ImageIcon, Eye, Upload } from "lucide-react";
+import { Camera, X, Image as ImageIcon, Eye, Upload, AlertCircle, CheckCircle } from "lucide-react";
 
 interface CorretoraProfileProps {
   onAtualizado?: () => void;
@@ -30,16 +30,24 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState<string | null>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<string[]>([]);
 
   // Tamanhos permitidos e tipos
   const MAX_SIZE_MB = 2;
   const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
   const RECOMMENDED_DIMENSIONS = "400x400px (quadrada)";
 
+  const addDebug = (msg: string) => {
+    const timestamp = new Date().toLocaleTimeString();
+    setDebugInfo(prev => [...prev.slice(-9), `[${timestamp}] ${msg}`]);
+    console.log(`[CorretoraProfile] ${msg}`);
+  };
+
   // Buscar corretora logada
   const buscarCorretora = async () => {
     if (!session) return;
     try {
+      addDebug("Buscando corretora...");
       const { data, error } = await supabase
         .from("corretoras")
         .select("id, nome, whatsapp, creci, foto_url")
@@ -48,11 +56,14 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
 
       if (error) throw error;
       if (data) {
+        addDebug(`Corretora encontrada: ${data.nome}, foto_url: ${data.foto_url || 'null'}`);
         // Se não tem foto_url no Supabase, tenta usar a do "Sobre" como preview inicial
         const sobreFoto = data.nome && SOBRE_IMAGES[data.nome] ? SOBRE_IMAGES[data.nome] : null;
         setCorretora({ ...data, foto_url: data.foto_url || sobreFoto });
+        addDebug(`Foto final: ${data.foto_url || sobreFoto || 'null'}`);
       }
     } catch (e: any) {
+      addDebug(`Erro ao buscar: ${e.message}`);
       setErro("Erro ao carregar corretora: " + e.message);
     } finally {
       setLoading(false);
@@ -89,6 +100,7 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
     setUploading(true);
     setErro(null);
     setSucesso(null);
+    addDebug(`Iniciando upload: ${file.name} (${(file.size/1024).toFixed(1)}KB)`);
 
     try {
       if (!corretora) throw new Error("Corretora não carregada");
@@ -96,33 +108,46 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
       const fileExt = file.name.split(".").pop();
       const fileName = `${corretora.id}-${Date.now()}.${fileExt}`;
       const filePath = `${corretora.id}/${fileName}`;
+      addDebug(`Upload para: ${filePath}`);
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError, data: uploadData } = await supabase.storage
         .from("corretoras-fotos")
         .upload(filePath, file, { cacheControl: "3600", upsert: true });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        addDebug(`Erro upload: ${uploadError.message}`);
+        throw uploadError;
+      }
+      addDebug(`Upload OK: ${JSON.stringify(uploadData)}`);
 
-      const { data } = supabase.storage
+      const { data: publicUrlData } = supabase.storage
         .from("corretoras-fotos")
         .getPublicUrl(filePath);
 
-      const fotoUrl = data.publicUrl;
+      const fotoUrl = publicUrlData.publicUrl;
+      addDebug(`Public URL: ${fotoUrl}`);
 
       // Atualiza coluna na tabela
+      addDebug(`Atualizando tabela corretoras...`);
       const { error: updateError } = await supabase
         .from("corretoras")
         .update({ foto_url: fotoUrl })
         .eq("id", corretora.id);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        addDebug(`Erro update tabela: ${updateError.message}`);
+        throw updateError;
+      }
+      addDebug(`Tabela atualizada com sucesso`);
 
       setCorretora((prev) => (prev ? { ...prev, foto_url: fotoUrl } : null));
       setSucesso("Foto atualizada com sucesso!");
       setPreview(fotoUrl);
       onAtualizado?.();
     } catch (e: any) {
-      setErro("Erro no upload: " + e.message);
+      const msg = e.message || "Erro desconhecido";
+      addDebug(`ERRO: ${msg}`);
+      setErro(`Erro no upload: ${msg}`);
       setPreview(null);
     } finally {
       setUploading(false);
@@ -136,10 +161,9 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
     setUploading(true);
     setErro(null);
     setSucesso(null);
+    addDebug("Removendo foto...");
 
     try {
-      // Remove do storage (opcional - mantém histórico)
-      // Aqui só limpa a referência na tabela
       const { error } = await supabase
         .from("corretoras")
         .update({ foto_url: null })
@@ -152,8 +176,10 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
       setCorretora((prev) => (prev ? { ...prev, foto_url: sobreFoto } : null));
       setSucesso("Foto removida. Usando foto padrão do Sobre.");
       setPreview(null);
+      addDebug(`Foto removida, fallback: ${sobreFoto || 'none'}`);
       onAtualizado?.();
     } catch (e: any) {
+      addDebug(`Erro remover: ${e.message}`);
       setErro("Erro ao remover: " + e.message);
     } finally {
       setUploading(false);
@@ -249,16 +275,26 @@ export function CorretoraProfile({ onAtualizado }: CorretoraProfileProps) {
         </div>
       </div>
 
+      {/* Debug Panel */}
+      <details className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+        <summary className="cursor-pointer font-mono text-xs text-slate-600">Debug Logs (clique para expandir)</summary>
+        <div className="mt-2 font-mono text-xs text-slate-700 max-h-40 overflow-auto">
+          {debugInfo.map((log, i) => (
+            <div key={i} className="font-mono text-[10px]">{log}</div>
+          ))}
+        </div>
+      </details>
+
       {/* Alertas */}
       {erro && (
         <div className="rounded-lg bg-red-50 border border-red-200 p-4 flex items-center gap-3">
-          <X className="text-red-500 shrink-0" size={20} />
+          <AlertCircle className="text-red-500 shrink-0" size={20} />
           <p className="text-sm text-red-700">{erro}</p>
         </div>
       )}
       {sucesso && (
         <div className="rounded-lg bg-green-50 border border-green-200 p-4 flex items-center gap-3">
-          <ImageIcon className="text-green-500 shrink-0" size={20} />
+          <CheckCircle className="text-green-500 shrink-0" size={20} />
           <p className="text-sm text-green-700">{sucesso}</p>
         </div>
       )}
