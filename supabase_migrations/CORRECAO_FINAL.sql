@@ -1,6 +1,5 @@
 -- ============================================
--- CORREÇÃO FINAL - Versão com DROP IF EXISTS
--- Execute no Supabase SQL Editor
+-- CORRECAO_FINAL.sql - Versão com DROP IF EXISTS completo
 -- ============================================
 
 -- 1. STORAGE BUCKET
@@ -8,7 +7,7 @@ insert into storage.buckets (id, name, public)
 values ('corretoras-fotos', 'corretoras-fotos', true)
 on conflict (id) do nothing;
 
--- 2. STORAGE POLICIES (DROP antes de criar)
+-- 2. STORAGE POLICIES
 drop policy if exists "Public read corretoras photos" on storage.objects;
 drop policy if exists "Admin upload corretoras photos" on storage.objects;
 drop policy if exists "Admin update corretoras photos" on storage.objects;
@@ -30,13 +29,14 @@ create policy "Admin delete corretoras photos"
 on storage.objects for delete
 using (bucket_id = 'corretoras-fotos' and auth.role() = 'authenticated');
 
--- 3. TABLE RLS POLICIES (DROP antes de criar)
+-- 3. TABLE RLS POLICIES (corretoras) - DROP TODAS ANTES
 drop policy if exists "Admin update own corretora" on public.corretoras;
 drop policy if exists "Admin update corretora" on public.corretoras;
 drop policy if exists "Admin insert corretora" on public.corretoras;
 drop policy if exists "Admin delete corretora" on public.corretoras;
+drop policy if exists "Admin delete own corretora" on public.corretoras;
 
--- UPDATE: corretora autenticada atualiza SUA linha (auth_user_id = auth.uid())
+-- Recriar
 create policy "Admin update own corretora"
 on public.corretoras
 for update
@@ -44,21 +44,19 @@ to authenticated
 using (auth_user_id = auth.uid())
 with check (auth_user_id = auth.uid());
 
--- INSERT: admin autenticado pode criar
 create policy "Admin insert corretora"
 on public.corretoras
 for insert
 to authenticated
 with check (true);
 
--- DELETE: corretora autenticada deleta SUA linha
 create policy "Admin delete own corretora"
 on public.corretoras
 for delete
 to authenticated
 using (auth_user_id = auth.uid());
 
--- 4. Coluna foto_url
+-- 4. COLUNA foto_url
 alter table public.corretoras
 add column if not exists foto_url text;
 

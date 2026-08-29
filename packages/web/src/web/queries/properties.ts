@@ -53,7 +53,6 @@ export interface SupabaseProperty {
   }
 }
 
-// Mapeamento de fallback para corretoras sem foto no Supabase
 const CORRETORA_FALLBACK_IMAGES: Record<string, string> = {
   'Liliane de Lima Texeira': '/images/team/liliane.png',
   'Liliane de Lima Teixeira': '/images/team/liliane.png',
@@ -69,13 +68,13 @@ function getCorretoraImage(corretora: { nome?: string; creci?: string | null; fo
   
   // 1. Prioridade: foto_url do Supabase (Storage)
   if (corretora.foto_url) {
-    console.log('[Vitrine] Usando foto_url do Supabase:', corretora.foto_url)
+    console.log('[Vitrine] ✅ Usando foto_url do Supabase:', corretora.foto_url)
     return corretora.foto_url
   }
   
   // 2. Fallback: mapeamento local por nome exato
   if (corretora.nome && CORRETORA_FALLBACK_IMAGES[corretora.nome]) {
-    console.log('[Vitrine] Usando fallback local por nome:', corretora.nome, '->', CORRETORA_FALLBACK_IMAGES[corretora.nome])
+    console.log('[Vitrine] ⚠️ Fallback local por nome:', corretora.nome, '->', CORRETORA_FALLBACK_IMAGES[corretora.nome])
     return CORRETORA_FALLBACK_IMAGES[corretora.nome]
   }
   
@@ -83,12 +82,12 @@ function getCorretoraImage(corretora: { nome?: string; creci?: string | null; fo
   if (corretora.creci) {
     const creciNum = corretora.creci.replace(/\D/g, '').slice(-4)
     if (CORRETORA_FALLBACK_IMAGES[creciNum]) {
-      console.log('[Vitrine] Usando fallback local por CRECI:', creciNum, '->', CORRETORA_FALLBACK_IMAGES[creciNum])
+      console.log('[Vitrine] ⚠️ Fallback local por CRECI:', creciNum, '->', CORRETORA_FALLBACK_IMAGES[creciNum])
       return CORRETORA_FALLBACK_IMAGES[creciNum]
     }
   }
   
-  console.log('[Vitrine] Nenhuma foto encontrada para corretora:', corretora)
+  console.log('[Vitrine] ❌ NENHUMA FOTO para corretora:', JSON.stringify(corretora, null, 2))
   return null
 }
 
@@ -105,7 +104,6 @@ function mapImovelToProperty(imovel: any, fotos: string[] = [], corretora: any =
     comercial: 'comercial',
   }
 
-  // Pega a foto da corretora (prioriza foto_url do Supabase, cai pro fallback local)
   const corretoraImage = getCorretoraImage(corretora)
 
   return {
@@ -155,14 +153,14 @@ async function fetchCorretoras(corretoraIds: string[]): Promise<Record<string, a
   if (!corretoraIds.length) return {}
   
   try {
-    console.log('[Vitrine] Buscando corretoras:', corretoraIds)
+    console.log('[Vitrine] 🔍 Buscando corretoras IDs:', corretoraIds)
     const { data, error } = await supabase
       .from('corretoras')
       .select('id, nome, telefone, whatsapp, creci, foto_url')
       .in('id', corretoraIds)
   
     if (error) {
-      console.warn('[Vitrine] Erro ao buscar corretoras:', error.message)
+      console.error('[Vitrine] ❌ Erro ao buscar corretoras:', error.message)
       return {}
     }
   
@@ -170,10 +168,13 @@ async function fetchCorretoras(corretoraIds: string[]): Promise<Record<string, a
     ;(data ?? []).forEach((c: any) => {
       map[c.id] = c
     })
-    console.log('[Vitrine] Corretoras carregadas:', Object.keys(map).length, '| Dados:', data)
+    console.log('[Vitrine] ✅ Corretoras carregadas:', Object.keys(map).length)
+    data?.forEach(c => {
+      console.log('[Vitrine] 📋 Corretora:', c.id, c.nome, '| foto_url:', c.foto_url ?? 'NULL')
+    })
     return map
   } catch (e) {
-    console.warn('[Vitrine] Exceção ao buscar corretoras:', e)
+    console.error('[Vitrine] 💥 Exceção ao buscar corretoras:', e)
     return {}
   }
 }
@@ -187,7 +188,7 @@ async function fetchFotos(imovelIds: string[]): Promise<Record<string, string[]>
       .in('imovel_id', imovelIds)
       .order('ordem', { ascending: true })
     if (error) {
-      console.warn('[Vitrine] Erro ao buscar fotos:', error.message)
+      console.warn('[Vitrine] ⚠️ Erro ao buscar fotos:', error.message)
       return {}
     }
     const map: Record<string, string[]> = {}
@@ -197,7 +198,7 @@ async function fetchFotos(imovelIds: string[]): Promise<Record<string, string[]>
     })
     return map
   } catch (e) {
-    console.warn('[Vitrine] Exceção ao buscar fotos:', e)
+    console.warn('[Vitrine] 💥 Exceção ao buscar fotos:', e)
     return {}
   }
 }
@@ -254,7 +255,7 @@ export function useProperties(filters?: PropertyFilters) {
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.length === PAGE_SIZE ? allPages.length : undefined
     },
-    staleTime: 30_000,
+    staleTime: 5_000, // Reduzido para 5s para refetch rápido após upload
   })
 }
 
@@ -291,6 +292,7 @@ export function useFeaturedProperties() {
         mapImovelToProperty(imovel, fotosMap[imovel.id] ?? [], corretorasMap[imovel.corretora_id] ?? null)
       )
     },
+    staleTime: 5_000,
   })
 }
 
@@ -319,7 +321,7 @@ export function useProperty(id: string) {
       )
     },
     enabled: !!id,
-    staleTime: 30_000,
+    staleTime: 5_000,
   })
 }
 
@@ -336,6 +338,7 @@ export function useCities() {
       const cidades = [...new Set((data ?? []).map((i: any) => i.cidade).filter(Boolean))].sort()
       return cidades
     },
+    staleTime: 5_000,
   })
 }
 
