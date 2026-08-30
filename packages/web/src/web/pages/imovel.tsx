@@ -230,7 +230,6 @@ export default function ImovelPage() {
                 <div className="border-t border-border pt-6 mb-6">
                   <p className="font-display text-lg text-foreground mb-4">Corretora responsável</p>
                   <div className="flex items-center gap-4">
-                    {/* Foto da corretora - usa p.corretora.foto (que vem do Supabase via foto_url) */}
                     {p.corretora.foto && (
                       <img
                         src={p.corretora.foto}
@@ -263,9 +262,17 @@ export default function ImovelPage() {
               <div className="border-t border-border pt-6">
                 <p className="font-display text-lg text-foreground mb-1">Agende uma visita</p>
                 <p className="text-xs text-muted-foreground mb-5">
-                  Deixe seus dados e um consultor entrará em contato.
+                  Preencha os dados abaixo e enviaremos direto para o WhatsApp da imobiliária.
                 </p>
-                <ContactForm compact propertyId={p.id} defaultMessage={waText} />
+                <ContactForm 
+                  compact 
+                  propertyId={p.id}
+                  propertyTitle={p.title}
+                  propertyReference={p.reference}
+                  propertyPrice={p.price}
+                  propertyPurpose={p.purpose}
+                  defaultMessage={waText}
+                />
               </div>
             </div>
           </aside>
