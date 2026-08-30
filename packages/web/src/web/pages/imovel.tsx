@@ -271,7 +271,6 @@ export default function ImovelPage() {
                   propertyReference={p.reference}
                   propertyPrice={p.price}
                   propertyPurpose={p.purpose}
-                  defaultMessage={waText}
                 />
               </div>
             </div>
