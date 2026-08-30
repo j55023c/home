@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2, Send } from "lucide-react";
+import { Send } from "lucide-react";
 
 interface Props {
   compact?: boolean;
@@ -27,14 +27,6 @@ export function ContactForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const formatPrice = (price: number, purpose: string) => {
-    if (!price) return "Consultar";
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(price) + (purpose === "aluguel" ? "/mês" : "");
-  };
-
   function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) {
@@ -46,25 +38,30 @@ export function ContactForm({
       return;
     }
     
-    // Build WhatsApp message
+    // Build WhatsApp message - sem duplicar telefone (já aparece no WhatsApp)
     let waMessage = `Olá! Tenho interesse`;
     
     if (propertyTitle) {
       waMessage += ` no imóvel "${propertyTitle}"`;
       if (propertyReference) waMessage += ` (Ref. ${propertyReference})`;
-      waMessage += ` - ${propertyPrice ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(propertyPrice) + (propertyPurpose === "aluguel" ? "/mês" : "") : "Consultar"}`;
+      if (propertyPrice) {
+        const formattedPrice = new Intl.NumberFormat("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        }).format(propertyPrice) + (propertyPurpose === "aluguel" ? "/mês" : "");
+        waMessage += ` - ${formattedPrice}`;
+      }
     }
     
     waMessage += `. Meu nome é ${name.trim()}.`;
     
     if (email) waMessage += ` E-mail: ${email.trim()}.`;
-    waMessage += ` Telefone: ${phone.trim()}.`;
+    // Telefone NÃO vai na mensagem - já aparece no WhatsApp
     
-    if (message.trim()) waMessage += ` Mensagem: ${message.trim()}.`;
+    if (message.trim()) waMessage += ` ${message.trim()}.`;
     
     waMessage += ` Aguardo retorno.`;
 
-    // WhatsApp number from env or default
     const whatsappNumber = import.meta.env.VITE_WHATSAPP || "5567993488383";
     const waUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(waMessage)}`;
     
@@ -107,6 +104,7 @@ export function ContactForm({
         value={message}
         onChange={(e) => setMessage(e.target.value)}
       />
+      {error && <p className="text-sm text-red-500">{error}</p>}
       <button
         type="submit"
         disabled={isSubmitting}
